@@ -1,37 +1,45 @@
 Segment CODE
-File C:\Users\jdlowe\prj\Homebrew\mon\6502\uart.asm
-   21:0000F000    22:0000F002    23:0000F005    24:0000F007    25:0000F00A 
-   26:0000F00D    27:0000F00F    28:0000F012    29:0000F014    30:0000F017 
-   31:0000F01A    32:0000F01C    33:0000F01E    34:0000F021    38:0000F022 
-   39:0000F025    40:0000F027    41:0000F02A    42:0000F02C    43:0000F02F 
-   44:0000F032    45:0000F034    46:0000F037    47:0000F039    48:0000F03C 
-   49:0000F03E    50:0000F041    54:0000F042    55:0000F045    56:0000F047 
-   57:0000F049    58:0000F04C    59:0000F04F    60:0000F051    61:0000F054 
-   62:0000F055    64:0000F056    65:0000F057 
-File C:\Users\jdlowe\prj\Homebrew\mon\6502\mon.asm
-   26:0000F058    27:0000F059    28:0000F05B    29:0000F05C    32:0000F05F 
-   33:0000F061    34:0000F063    35:0000F065    36:0000F067    39:0000F069 
-   41:0000F06B    42:0000F06E    43:0000F070    44:0000F073    45:0000F074 
-   48:0000F077    49:0000F079    50:0000F07C    51:0000F07E    52:0000F081 
-   53:0000F083    54:0000F086    55:0000F088    56:0000F08B    57:0000F08D 
-   58:0000F08F    59:0000F092    60:0000F094    62:0000F097    63:0000F09A 
-   64:0000F09C    65:0000F09D    66:0000F0A0    67:0000F0A1    68:0000F0A3 
-   69:0000F0A5    70:0000F0A7    71:0000F0A9    72:0000F0AB    73:0000F0AD 
-   74:0000F0AF    75:0000F0B1    76:0000F0B3    79:0000F0B6    80:0000F0B8 
-   82:0000F0BA    83:0000F0BC    84:0000F0BE    85:0000F0C0    88:0000F0C3 
-   89:0000F0C5    90:0000F0C7    91:0000F0C9    92:0000F0CB    94:0000F0CD 
-   95:0000F0CF    98:0000F0D2    99:0000F0D4   100:0000F0D6   101:0000F0D8 
-  102:0000F0D9   103:0000F0DB   104:0000F0DC   107:0000F0DF   108:0000F0E1 
-  109:0000F0E3   110:0000F0E5   111:0000F0E7   112:0000F0E9   113:0000F0EB 
-  114:0000F0ED   115:0000F0EF   116:0000F0F1   121:0000F0F4   122:0000F0F6 
-  124:0000F0F8   125:0000F0FB   126:0000F0FD   127:0000F0FE   128:0000F100 
-  130:0000F103   131:0000F105   132:0000F107   133:0000F109   134:0000F10B 
-  135:0000F10D   136:0000F10F   137:0000F111   138:0000F113   139:0000F114 
-  140:0000F116   141:0000F118   145:0000F11B   146:0000F11C   147:0000F11D 
-  148:0000F11E   149:0000F11F   150:0000F120   151:0000F121   152:0000F124 
-  153:0000F127   154:0000F128   155:0000F12A   156:0000F12B   157:0000F12E 
-  160:0000F131   163:0000F141   166:0000F156   169:0000F159 
-File C:\Users\jdlowe\prj\Homebrew\mon\6502\vec.asm
+File Z:\prj\projects\homebrew\software\mon\6502\uart.asm
+   23:0000F000    24:0000F002    25:0000F005    26:0000F008    27:0000F00A 
+   28:0000F00C    29:0000F00F    30:0000F011    31:0000F014    32:0000F017 
+   33:0000F019    34:0000F01B    37:0000F01E    38:0000F021    39:0000F023 
+   40:0000F025    41:0000F028    42:0000F029    43:0000F02B    44:0000F02E 
+   46:0000F031    50:0000F032    51:0000F035    52:0000F037    53:0000F03A 
+   54:0000F03C    55:0000F03F    56:0000F042    57:0000F044    58:0000F047 
+   59:0000F049    60:0000F04C    61:0000F04E    62:0000F051    66:0000F052 
+   67:0000F055    68:0000F057    69:0000F059    70:0000F05C    71:0000F05F 
+   72:0000F061    73:0000F064    74:0000F065    76:0000F066    77:0000F067 
+File Z:\prj\projects\homebrew\software\mon\6502\LED.asm
+   10:0000F068    11:0000F06B    12:0000F06D    13:0000F070    14:0000F073 
+   15:0000F075    16:0000F078    19:0000F079    20:0000F07A    21:0000F07D 
+   22:0000F07F    23:0000F082    24:0000F083    27:0000F084    28:0000F085 
+   29:0000F088    30:0000F08A    31:0000F08D    32:0000F08E    35:0000F08F 
+   36:0000F090    37:0000F093    38:0000F095    39:0000F098    40:0000F099 
+File Z:\prj\projects\homebrew\software\mon\6502\mon.asm
+   26:0000F09A    27:0000F09B    28:0000F09D    29:0000F09E    30:0000F0A1 
+   33:0000F0A4    34:0000F0A6    35:0000F0A8    36:0000F0AA    37:0000F0AC 
+   40:0000F0AE    42:0000F0B0    43:0000F0B3    44:0000F0B5    45:0000F0B8 
+   46:0000F0B9    49:0000F0BC    50:0000F0BF    51:0000F0C1    52:0000F0C4 
+   53:0000F0C6    54:0000F0C9    55:0000F0CB    56:0000F0CE    57:0000F0D0 
+   58:0000F0D3    59:0000F0D5    60:0000F0D7    61:0000F0DA    62:0000F0DC 
+   64:0000F0DF    65:0000F0E2    66:0000F0E4    67:0000F0E7    68:0000F0E8 
+   69:0000F0EB    70:0000F0EC    71:0000F0EE    72:0000F0F0    73:0000F0F2 
+   74:0000F0F4    75:0000F0F6    76:0000F0F8    77:0000F0FA    78:0000F0FC 
+   79:0000F0FE    82:0000F101    83:0000F103    85:0000F105    86:0000F107 
+   87:0000F109    88:0000F10B    91:0000F10E    92:0000F110    93:0000F112 
+   94:0000F114    95:0000F116    97:0000F118    98:0000F11A   101:0000F11D 
+  102:0000F11F   103:0000F121   104:0000F123   105:0000F124   106:0000F126 
+  107:0000F127   110:0000F12A   111:0000F12C   112:0000F12E   113:0000F130 
+  114:0000F132   115:0000F134   116:0000F136   117:0000F138   118:0000F13A 
+  119:0000F13C   124:0000F13F   125:0000F141   127:0000F143   128:0000F146 
+  129:0000F148   130:0000F149   131:0000F14B   133:0000F14E   134:0000F150 
+  135:0000F152   136:0000F154   137:0000F156   138:0000F158   139:0000F15A 
+  140:0000F15C   141:0000F15E   142:0000F15F   143:0000F161   144:0000F163 
+  148:0000F166   149:0000F167   150:0000F168   151:0000F169   152:0000F16A 
+  153:0000F16B   154:0000F16C   155:0000F16F   156:0000F172   157:0000F173 
+  158:0000F175   159:0000F176   160:0000F179   163:0000F17C   166:0000F18C 
+  169:0000F1A1   172:0000F1A4 
+File Z:\prj\projects\homebrew\software\mon\6502\vec.asm
     5:0000FFFA     6:0000FFFC     7:0000FFFE 
 
 Symbols in Segment NOTHING
@@ -41,23 +49,29 @@ ARCHITECTURE                          String i386-unknown-win32        -1  0 1
 CASESENSITIVE                         Int    0                         -1  0 1
 COMPMODE                              Int    0                         -1  0 1
 CONSTPI                               Float  3.141592653589793         -1  0 1
-DATE                                  String 8/23/2022                 -1  0 1
+DATE                                  String 9/5/2022                  -1  0 1
 FALSE                                 Int    0                         -1  0 1
 FT240_NOSTB                           Int    E                         -1  1 0
 FT240_RDSTB                           Int    C                         -1  1 0
+FT240_RXF                             Int    80                        -1  1 0
+FT240_SIWU                            Int    20                        -1  1 0
+FT240_TXE                             Int    40                        -1  1 0
 FT240_WRMSK                           Int    1                         -1  1 0
 FULLPMMU                              Int    1                         -1  0 1
 HAS64                                 Int    0                         -1  0 1
 HASFPU                                Int    0                         -1  0 1
 HASPMMU                               Int    0                         -1  0 1
 INSUPMODE                             Int    0                         -1  0 1
+LED_BLUE                              Int    2                         -1  1 0
+LED_GREEN                             Int    8                         -1  1 0
+LED_RED                               Int    4                         -1  1 0
 LISTON                                Int    1                         -1  0 1
 MACEXP                                Int    7                         -1  0 1
 MOMCPU                                Int    6502                      -1  0 1
 MOMCPUNAME                            String 6502                      -1  0 1
 NESTMAX                               Int    100                       -1  0 1
 PADDING                               Int    1                         -1  0 1
-PIA_ACR                               Int    20B                       -1  1 0
+PIA_ACR                               Int    20B                       -1  0 0
 PIA_BASE                              Int    200                       -1  1 0
 PIA_DDRA                              Int    203                       -1  1 0
 PIA_DDRB                              Int    202                       -1  1 0
@@ -67,35 +81,41 @@ PIA_PCR                               Int    20C                       -1  1 0
 PIA_PORTA                             Int    201                       -1  1 0
 PIA_PORTB                             Int    200                       -1  1 0
 RELAXED                               Int    0                         -1  0 1
-TIME                                  String 3:45:7                    -1  0 1
+TIME                                  String 1:43:34                   -1  0 1
 TRUE                                  Int    1                         -1  0 1
 USERH                                 Int    3                         -1  1 0
 USERL                                 Int    2                         -1  1 0
 VERSION                               Int    142F                      -1  0 1
 
 Symbols in Segment CODE
-DOINC                                 Int    F0BA                      -1  1 0
+DOINC                                 Int    F105                      -1  1 0
+FT240_FLUSH                           Int    F01E                      -1  1 0
 FT240_INIT                            Int    F000                      -1  1 0
-GETCHAR                               Int    F042                      -1  1 0
-GOTHEX                                Int    F103                      -1  1 0
-HEXCHARS                              Int    F131                      -1  1 0
-INFOCMD                               Int    F069                      -1  1 0
-INFOSTR                               Int    F141                      -1  1 0
-INITMON                               Int    F05F                      -1  0 0
-IRQBRK                                Int    F159                      -1  1 0
-LOOP26                                Int    F06B                      -1  1 0
-NEXTCHAR                              Int    F097                      -1  1 0
-NMI                                   Int    F156                      -1  1 0
-NOCHAR17                              Int    F056                      -1  1 0
-NOMSB31                               Int    F0CD                      -1  1 0
-NOTADDR                               Int    F0F4                      -1  1 0
-NOTDEC                                Int    F0D2                      -1  1 0
-NOTGO                                 Int    F0DF                      -1  1 0
-NOTINC                                Int    F0C3                      -1  1 0
-NOTWRITE                              Int    F0B6                      -1  1 0
-PARSEHEX                              Int    F0F4                      -1  0 0
-PARSELOOP                             Int    F0F8                      -1  1 0
-PROMPT                                Int    F077                      -1  1 0
-PUTCHAR                               Int    F022                      -1  1 0
-PUTHEX                                Int    F11B                      -1  1 0
-RESET                                 Int    F058                      -1  1 0
+GETCHAR                               Int    F052                      -1  1 0
+GOTHEX                                Int    F14E                      -1  1 0
+HEXCHARS                              Int    F17C                      -1  1 0
+INFOCMD                               Int    F0AE                      -1  1 0
+INFOSTR                               Int    F18C                      -1  1 0
+INITMON                               Int    F0A4                      -1  0 0
+IRQBRK                                Int    F1A4                      -1  1 0
+LED_INIT                              Int    F068                      -1  1 0
+LED_REDOFF                            Int    F084                      -1  1 0
+LED_REDON                             Int    F079                      -1  1 0
+LED_REDTOGGLE                         Int    F08F                      -1  0 0
+LOOP39                                Int    F0B0                      -1  1 0
+NEXTCHAR                              Int    F0DF                      -1  1 0
+NMI                                   Int    F1A1                      -1  1 0
+NOCHAR19                              Int    F031                      -1  1 0
+NOCHAR21                              Int    F066                      -1  1 0
+NOMSB44                               Int    F118                      -1  1 0
+NOTADDR                               Int    F13F                      -1  1 0
+NOTDEC                                Int    F11D                      -1  1 0
+NOTGO                                 Int    F12A                      -1  1 0
+NOTINC                                Int    F10E                      -1  1 0
+NOTWRITE                              Int    F101                      -1  1 0
+PARSEHEX                              Int    F13F                      -1  0 0
+PARSELOOP                             Int    F143                      -1  1 0
+PROMPT                                Int    F0BC                      -1  1 0
+PUTCHAR                               Int    F032                      -1  1 0
+PUTHEX                                Int    F166                      -1  1 0
+RESET                                 Int    F09A                      -1  1 0

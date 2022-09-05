@@ -27,6 +27,7 @@ reset:
     ldx     #$FF
     txs
     jsr     FT240_init
+    jsr     LED_init
 
 InitMon:
     lda     #$00            ; Clear monitor state
@@ -45,6 +46,7 @@ $$loop
     jmp     $$loop
 
 Prompt:
+    jsr     LED_RedOff
     lda     #$0a            ; Show Prompt
     jsr     PutChar
     lda     addrH           ; Show high address
@@ -61,6 +63,7 @@ Prompt:
  NextChar:   
     jsr     GetChar         ; get char from user
     bcc     NextChar        ; Got a char? Keep polling until we get a char
+    jsr     LED_RedOn
     tax
     jsr     PutChar         ; Should we echo the character?????
     txa
