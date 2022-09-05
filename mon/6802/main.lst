@@ -1,4 +1,4 @@
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 1 - 8/23/2022 3:45:34
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 1 - 9/4/2022 18:18:6
 
 
        1/    F000 :                         ORG     $F000
@@ -18,311 +18,386 @@
 (1)   12/    F000 : =$FF                 PIA_OUT     EQU     $FF
 (1)   13/    F000 :                     
 (1)   14/    F000 : =$1                  FT240_WRMSK EQU     $01     ; WR on bit-0
-(1)   15/    F000 : =$E                  FT240_NOSTB EQU     $0E     ; RD# = 1, irqs disabled 
-(1)   16/    F000 : =$C                  FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled 
-(1)   17/    F000 :                     
-(1)   18/    F000 :                     
-(1)   19/    F000 :                     ; Initialize the VIA to operate iwth the FT240, which is use for console IO.
-(1)   20/    F000 :                     FT240_init:
-(1)   21/    F000 : 86 FC                   ldaa    #$FC
-(1)   22/    F002 : B7 02 0B                staa    PIA_ACR         ; Disable input latching, don't touch the other bits
-(1)   23/    F005 : 86 0E                   ldaa    #FT240_NOSTB    ; RD# = 1
-(1)   24/    F007 : B7 02 0C                staa    PIA_PCR
-(1)   25/    F00A : B6 02 00                ldaa    PIA_PORTB       ; WR = 0, don't touch the other bits
-(1)   26/    F00D : 84 FE                   anda    #~FT240_WRMSK
-(1)   27/    F00F : B7 02 00                staa    PIA_PORTB
-(1)   28/    F012 : 86 00                   ldaa    #PIA_IN         ; data port input, its only output when writing to FT240
-(1)   29/    F014 : B7 02 03                staa    PIA_DDRA
-(1)   30/    F017 : B6 02 02                ldaa    PIA_DDRB        ; control ports bits for FT240, don't touch other bits
-(1)   31/    F01A : 8A 01                   oraa    #FT240_WRMSK    ; WR is ouptut
-(1)   32/    F01C : 84 3F                   anda    #$3F            ; TXE# and RXF# are input
-(1)   33/    F01E : B7 02 02                staa    PIA_DDRB
-(1)   34/    F021 : 39                      rts
-(1)   35/    F022 :                     
-(1)   36/    F022 :                     ; Output the value in the accA to the console    
-(1)   37/    F022 :                     PutChar:
-(1)   38/    F022 : B6 02 00                ldaa    PIA_PORTB       ; Test TXE (bit-6)
-(1)   39/    F025 : 85 40                   bita    #$40
-(1)   40/    F027 : 26 F9                   bne     PutChar         ; When set the FIFO is full, keep polling until there is room
-(1)   41/    F029 : B7 02 01                staa    PIA_PORTA       ; Write data to port
-(1)   42/    F02C : 86 FF                   ldaa    #PIA_OUT        ; Set data port direction to output
-(1)   43/    F02E : B7 02 03                staa    PIA_DDRA
-(1)   44/    F031 : B6 02 00                ldaa    PIA_PORTB       ; FT240 WR = 1 (don't touch other bits)
-(1)   45/    F034 : 8A 01                   oraa    #FT240_WRMSK
-(1)   46/    F036 : B7 02 00                staa    PIA_PORTB
-(1)   47/    F039 : 84 FE                   anda    #~FT240_WRMSK   ; FT240 WR = 0
-(1)   48/    F03B : B7 02 00                staa    PIA_PORTB
-(1)   49/    F03E : 86 00                   ldaa    #PIA_IN         ; Set data port direction to input
-(1)   50/    F040 : B7 02 03                staa    PIA_DDRA
-(1)   51/    F043 : 39                      rts
-(1)   52/    F044 :                     
-(1)   53/    F044 :                     ; Read a character from the console in the accA, C == 1 indicates a character was read
-(1)   54/    F044 :                     GetChar:
-(1)   55/    F044 : B6 02 00                ldaa    PIA_PORTB       ; Test RXF# (bit-7)
-(1)   56/    F047 : 2B 0F                   bmi     $$NoChar        ; Branch when RXF# is set, no data in FIFO
-(1)   57/    F049 : C6 0C                   ldab    #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
- AS V1.42 Beta [Bld 223] - Source File main.asm(uart.asm) - Page 2 - 8/23/2022 3:45:34
+(1)   15/    F000 : =$20                 FT240_SIWU  EQU     $20     ; SIWU on bit 5, always high
+(1)   16/    F000 : =$E                  FT240_NOSTB EQU     $0E     ; RD# = 1, irqs disabled 
+(1)   17/    F000 : =$C                  FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled 
+(1)   18/    F000 : =$40                 FT240_TXE   EQU     $40     ; TXE# on bit 6 (FIFO can accept data when low)
+(1)   19/    F000 : =$80                 FT240_RXF   EQU     $80     ; RXF# on bit 7 (FIFO has data when low)
+(1)   20/    F000 :                     
+(1)   21/    F000 :                     
+(1)   22/    F000 :                     ; Initialize the VIA to operate iwth the FT240, which is use for console IO.
+(1)   23/    F000 :                     FT240_init:
+(1)   24/    F000 : 86 0E                   ldaa    #FT240_NOSTB    ; RD# = 1
+(1)   25/    F002 : B7 02 0C                staa    PIA_PCR
+(1)   26/    F005 : B6 02 00                ldaa    PIA_PORTB       ; WR = 0, don't touch the other bits
+(1)   27/    F008 : 84 FE                   anda    #~FT240_WRMSK
+(1)   28/    F00A : B7 02 00                staa    PIA_PORTB
+(1)   29/    F00D : 86 00                   ldaa    #PIA_IN         ; data port input, its only output when writing to FT240
+(1)   30/    F00F : B7 02 03                staa    PIA_DDRA
+(1)   31/    F012 : B6 02 02                ldaa    PIA_DDRB        ; control ports bits for FT240, don't touch other bits
+(1)   32/    F015 : 8A 21                   oraa    #(FT240_WRMSK | FT240_SIWU) & $FF   ; Ouptut pins
+(1)   33/    F017 : 84 3F                   anda    #(~(FT240_RXF | FT240_TXE)) & $FF   ; Input pins
+(1)   34/    F019 : B7 02 02                staa    PIA_DDRB
+(1)   35/    F01C :                     
+(1)   36/    F01C :                     FT240_Flush:
+(1)   37/    F01C : B6 02 00                ldaa    PIA_PORTB       ; Test RXF# (bit-7)
+(1)   38/    F01F : 2B 0D                   bmi     $$NoChar        ; Branch when RXF# is set, no data in FIFO
+(1)   39/    F021 : C6 0C                   ldab    #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   40/    F023 : F7 02 0C                stab    PIA_PCR
+(1)   41/    F026 : 01                      nop
+(1)   42/    F027 : C6 0E                   ldab    #FT240_NOSTB    ; FT240 RD# = 1
+(1)   43/    F029 : F7 02 0C                stab    PIA_PCR
+(1)   44/    F02C : 20 EE                   bra     FT240_Flush
+(1)   45/    F02E :                     $$NoChar:
+(1)   46/    F02E : 39                      rts
+(1)   47/    F02F :                     
+(1)   48/    F02F :                     ; Output the value in the accA to the console    
+(1)   49/    F02F :                     PutChar:
+(1)   50/    F02F : 36                      psha
+(1)   51/    F030 :                     $$PutWait:
+(1)   52/    F030 : B6 02 00                ldaa    PIA_PORTB       ; Test TXE (bit-6)
+(1)   53/    F033 : 85 40                   bita    #FT240_TXE
+(1)   54/    F035 : 26 F9                   bne     $$PutWait       ; When set the FIFO is full, keep polling until there is room
+(1)   55/    F037 : 32                      pula
+(1)   56/    F038 : B7 02 01                staa    PIA_PORTA       ; Write data to port
+(1)   57/    F03B : 86 FF                   ldaa    #PIA_OUT        ; Set data port direction to output
+ AS V1.42 Beta [Bld 223] - Source File main.asm(uart.asm) - Page 2 - 9/4/2022 18:18:6
 
 
-(1)   58/    F04B : F7 02 0C                stab    PIA_PCR
-(1)   59/    F04E : B6 02 01                ldaa    PIA_PORTA       ; Read data byte from FT240 (assumes DDR in input)
-(1)   60/    F051 : C6 0E                   ldab    #FT240_NOSTB    ; FT240 RD# = 1
-(1)   61/    F053 : F7 02 0C                stab    PIA_PCR
-(1)   62/    F056 : 0D                      sec                     ; Set carry to indicate we read a data byte
-(1)   63/    F057 : 39                      rts
-(1)   64/    F058 :                     $$NoChar:
-(1)   65/    F058 : 0C                      clc                     ; Clear carry to indicate there was nothing to read
-(1)   66/    F059 : 39                      rts
-       4/    F05A :                         include "mon.asm"
-(1)    1/    F05A :                         CPU     6800
-(1)    2/    F05A :                     
-(1)    3/    F05A :                     ; Simple monitor:
-(1)    4/    F05A :                     ; Prompt messsage is:
-(1)    5/    F05A :                     ; 
-(1)    6/    F05A :                     ; aaaa bb>
-(1)    7/    F05A :                     ; 
-(1)    8/    F05A :                     ; Where aaaa is the current addess and bb is the current value at that address.
-(1)    9/    F05A :                     ;
-(1)   10/    F05A :                     ; Commands:
-(1)   11/    F05A :                     ; ?     Show the info message
-(1)   12/    F05A :                     ; =     Re-read the current address
-(1)   13/    F05A :                     ; <lf>  Write to current address and increment address
-(1)   14/    F05A :                     ; +     Increment current address
-(1)   15/    F05A :                     ; -     Decrement current address
-(1)   16/    F05A :                     ; g     Go to current address
-(1)   17/    F05A :                     ; <sp>  Set current address   
-(1)   18/    F05A :                     
-(1)   19/    F05A :                     ; Zero page address
-(1)   20/    F05A : =$0                  addrL       EQU     $00
-(1)   21/    F05A : =$1                  addrH       EQU     $01
-(1)   22/    F05A : =$2                  userL       EQU     $02
-(1)   23/    F05A : =$3                  userH       EQU     $03
-(1)   24/    F05A :                     
-(1)   25/    F05A :                     reset:
-(1)   26/    F05A : 8E 01 FF                lds     #$01FF
-(1)   27/    F05D : 8D A1                   bsr     FT240_init
-(1)   28/    F05F :                     
-(1)   29/    F05F :                     InitMon:
-(1)   30/    F05F : 86 00                   ldaa    #$00            ; Clear monitor state
-(1)   31/    F061 : 97 00                   staa    addrL           
-(1)   32/    F063 : 97 01                   staa    addrH
-(1)   33/    F065 : 97 02                   staa    userL
-(1)   34/    F067 : 97 03                   staa    userH
-(1)   35/    F069 :                         
-(1)   36/    F069 :                     InfoCmd:
-(1)   37/    F069 : CE F1 3F                ldx     #InfoStr
-(1)   38/    F06C :                     $$loop
-(1)   39/    F06C : A6 00                   ldaa    0,x             ; get a char from the info string
-(1)   40/    F06E : 27 05                   beq     Prompt          ; End of string= exit
-(1)   41/    F070 : 8D B0                   bsr     PutChar         ; not end end of string, output char
-(1)   42/    F072 : 08                      inx                     ; Point to next char in string
-(1)   43/    F073 : 20 F7                   bra     $$loop
-(1)   44/    F075 :                     
-(1)   45/    F075 :                     Prompt:
-(1)   46/    F075 : 86 0A                   ldaa    #$0a            ; Show Prompt
-(1)   47/    F077 : 8D A9                   bsr     PutChar
-(1)   48/    F079 : 96 01                   ldaa    addrH           ; Show high address
-(1)   49/    F07B : BD F1 0C                jsr     PutHex
-(1)   50/    F07E : 96 00                   ldaa    addrL           ; Show low address
- AS V1.42 Beta [Bld 223] - Source File main.asm(mon.asm) - Page 3 - 8/23/2022 3:45:34
+(1)   58/    F03D : B7 02 03                staa    PIA_DDRA
+(1)   59/    F040 : B6 02 00                ldaa    PIA_PORTB       ; FT240 WR = 1 (don't touch other bits)
+(1)   60/    F043 : 8A 01                   oraa    #FT240_WRMSK
+(1)   61/    F045 : B7 02 00                staa    PIA_PORTB
+(1)   62/    F048 : 84 FE                   anda    #~FT240_WRMSK   ; FT240 WR = 0
+(1)   63/    F04A : B7 02 00                staa    PIA_PORTB
+(1)   64/    F04D : 86 00                   ldaa    #PIA_IN         ; Set data port direction to input
+(1)   65/    F04F : B7 02 03                staa    PIA_DDRA
+(1)   66/    F052 : 39                      rts
+(1)   67/    F053 :                     
+(1)   68/    F053 :                     ; Read a character from the console in the accA, C == 1 indicates a character was read
+(1)   69/    F053 :                     GetChar:
+(1)   70/    F053 : B6 02 00                ldaa    PIA_PORTB       ; Test RXF# (bit-7)
+(1)   71/    F056 : 2B 0F                   bmi     $$NoChar        ; Branch when RXF# is set, no data in FIFO
+(1)   72/    F058 : C6 0C                   ldab    #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   73/    F05A : F7 02 0C                stab    PIA_PCR
+(1)   74/    F05D : B6 02 01                ldaa    PIA_PORTA       ; Read data byte from FT240 (assumes DDR in input)
+(1)   75/    F060 : C6 0E                   ldab    #FT240_NOSTB    ; FT240 RD# = 1
+(1)   76/    F062 : F7 02 0C                stab    PIA_PCR
+(1)   77/    F065 : 0D                      sec                     ; Set carry to indicate we read a data byte
+(1)   78/    F066 : 39                      rts
+(1)   79/    F067 :                     $$NoChar:
+(1)   80/    F067 : 0C                      clc                     ; Clear carry to indicate there was nothing to read
+(1)   81/    F068 : 39                      rts
+       4/    F069 :                         include "LED.asm"
+(1)    1/    F069 :                         CPU     6800
+(1)    2/    F069 :                         
+(1)    3/    F069 :                     ; PIA already defined in uart.asm
+(1)    4/    F069 :                     
+(1)    5/    F069 : =$4                  LED_RED     EQU     $04
+(1)    6/    F069 : =$8                  LED_GREEN   EQU     $08
+(1)    7/    F069 : =$2                  LED_BLUE    EQU     $02
+(1)    8/    F069 :                     
+(1)    9/    F069 :                     LED_init:
+(1)   10/    F069 : B6 02 00                ldaa    PIA_PORTB
+(1)   11/    F06C : 84 F1                   anda    #(~(LED_RED | LED_GREEN | LED_BLUE)) & 255
+(1)   12/    F06E : B7 02 00                staa    PIA_PORTB
+(1)   13/    F071 : B6 02 02                ldaa    PIA_DDRB
+(1)   14/    F074 : 8A 0E                   oraa    #(LED_RED | LED_GREEN | LED_BLUE) & 255
+(1)   15/    F076 : B7 02 02                staa    PIA_DDRB
+(1)   16/    F079 : 39                      rts
+(1)   17/    F07A :                     
+(1)   18/    F07A :                     LED_RedOn:
+(1)   19/    F07A : 36                      psha
+(1)   20/    F07B : B6 02 00                ldaa    PIA_PORTB
+(1)   21/    F07E : 8A 04                   oraa    #LED_RED
+(1)   22/    F080 : B7 02 00                staa    PIA_PORTB
+(1)   23/    F083 : 32                      pula
+(1)   24/    F084 : 39                      rts
+(1)   25/    F085 :                     
+(1)   26/    F085 :                     LED_RedOff:
+(1)   27/    F085 : 36                      psha
+(1)   28/    F086 : B6 02 00                ldaa    PIA_PORTB
+(1)   29/    F089 : 84 FB                   anda    #(~LED_RED) & 255
+(1)   30/    F08B : B7 02 00                staa     PIA_PORTB
+(1)   31/    F08E : 32                      pula
+(1)   32/    F08F : 39                      rts
+(1)   33/    F090 :                         
+(1)   34/    F090 :                     LED_RedToggle:
+(1)   35/    F090 : 36                      psha
+ AS V1.42 Beta [Bld 223] - Source File main.asm(LED.asm) - Page 3 - 9/4/2022 18:18:6
 
 
-(1)   51/    F080 : BD F1 0C                jsr     PutHex
-(1)   52/    F083 : 86 20                   ldaa    #' '            ; Space to seperate address and data
-(1)   53/    F085 : 8D 9B                   bsr     PutChar
-(1)   54/    F087 : DE 00                   ldx     addrL           ; Show data at address
-(1)   55/    F089 : A6 00                   ldaa    0,x             
-(1)   56/    F08B : BD F1 0C                jsr     PutHex
-(1)   57/    F08E : 86 3E                   ldaa    #'>'            ; Show Prompt
-(1)   58/    F090 : 8D 90                   bsr     PutChar
-(1)   59/    F092 :                      NextChar:   
-(1)   60/    F092 : 8D B0                   bsr     GetChar         ; get char from user
-(1)   61/    F094 : 24 FC                   bcc     NextChar        ; Got a char? Keep polling until we get a char
-(1)   62/    F096 : 16                      tab
-(1)   63/    F097 : 8D 89                   bsr     PutChar         ; Should we echo the character?????
-(1)   64/    F099 : 17                      tba
-(1)   65/    F09A : 81 3F                   cmpa    #'?'            ; Show info?
-(1)   66/    F09C : 27 CB                   beq     InfoCmd
-(1)   67/    F09E : 81 3D                   cmpa    #'='            ; re-read address?
-(1)   68/    F0A0 : 27 D3                   beq     Prompt
-(1)   69/    F0A2 : 81 0A                   cmpa    #$0a            ; Write data byte?
-(1)   70/    F0A4 : 26 08                   bne     NotWrite
-(1)   71/    F0A6 : 96 02                   ldaa    userL           ; Get the last 8-bit value entered
-(1)   72/    F0A8 : DE 00                   ldx     addrL
-(1)   73/    F0AA : A7 00                   staa    0,x             ; Store at the current address
-(1)   74/    F0AC : 20 04                   bra     DoInc           ; Increment the current address
-(1)   75/    F0AE :                     
-(1)   76/    F0AE :                     NotWrite:
-(1)   77/    F0AE : 81 2B                   cmpa    #'+'            ; Incement address?
-(1)   78/    F0B0 : 26 07                   bne     NotInc
-(1)   79/    F0B2 :                     DoInc:
-(1)   80/    F0B2 : DE 00                   ldx     addrL
-(1)   81/    F0B4 : 08                      inx          
-(1)   82/    F0B5 : DF 00                   stx     addrL
-(1)   83/    F0B7 : 20 BC                   bra     Prompt
-(1)   84/    F0B9 :                     
-(1)   85/    F0B9 :                     NotInc:
-(1)   86/    F0B9 : 81 2D                   cmpa    #'-'            ; Decrement address?
-(1)   87/    F0BB : 26 07                   bne     NotDec
-(1)   88/    F0BD : DE 00                   ldx     addrL
-(1)   89/    F0BF : 09                      dex
-(1)   90/    F0C0 : DF 00                   stx     addrL
-(1)   91/    F0C2 : 20 B1                   bra     Prompt
-(1)   92/    F0C4 :                     
-(1)   93/    F0C4 :                     NotDec:
-(1)   94/    F0C4 : 81 67                   cmpa    #'g'            ; go to address?
-(1)   95/    F0C6 : 26 0A                   bne     NotGo
-(1)   96/    F0C8 : 86 F0                   lda     #(reset)>>8     ; push the return address onto the stack
-(1)   97/    F0CA : 36                      psha
-(1)   98/    F0CB : 86 5A                   lda     #(reset)&$FF
-(1)   99/    F0CD : 36                      psha
-(1)  100/    F0CE : DE 00                   ldx     addrL
-(1)  101/    F0D0 : 6E 00                   jmp     0,x
-(1)  102/    F0D2 :                     
-(1)  103/    F0D2 :                     NotGo:
-(1)  104/    F0D2 : 81 20                   cmpa    #' '            ; set current address?
-(1)  105/    F0D4 : 26 0C                   bne     NotAddr
-(1)  106/    F0D6 : DE 02                   ldx     userL           ; move the user value to the current address
-(1)  107/    F0D8 : DF 00                   stx     addrL
-(1)  108/    F0DA : 86 00                   ldaa    #$00            ; clear user value
-(1)  109/    F0DC : 97 02                   staa    userL
-(1)  110/    F0DE : 97 03                   staa    userH
- AS V1.42 Beta [Bld 223] - Source File main.asm(mon.asm) - Page 4 - 8/23/2022 3:45:34
+(1)   36/    F091 : B6 02 00                ldaa    PIA_PORTB
+(1)   37/    F094 : 88 04                   eora    #LED_RED
+(1)   38/    F096 : B7 02 00                staa    PIA_PORTB
+(1)   39/    F099 : 32                      pula
+(1)   40/    F09A : 39                      rts
+(1)   41/    F09B :                         
+(1)   42/    F09B :                     
+       5/    F09B :                         include "mon.asm"
+(1)    1/    F09B :                         CPU     6800
+(1)    2/    F09B :                     
+(1)    3/    F09B :                     ; Simple monitor:
+(1)    4/    F09B :                     ; Prompt messsage is:
+(1)    5/    F09B :                     ; 
+(1)    6/    F09B :                     ; aaaa bb>
+(1)    7/    F09B :                     ; 
+(1)    8/    F09B :                     ; Where aaaa is the current addess and bb is the current value at that address.
+(1)    9/    F09B :                     ;
+(1)   10/    F09B :                     ; Commands:
+(1)   11/    F09B :                     ; ?     Show the info message
+(1)   12/    F09B :                     ; =     Re-read the current address
+(1)   13/    F09B :                     ; <lf>  Write to current address and increment address
+(1)   14/    F09B :                     ; +     Increment current address
+(1)   15/    F09B :                     ; -     Decrement current address
+(1)   16/    F09B :                     ; g     Go to current address
+(1)   17/    F09B :                     ; <sp>  Set current address   
+(1)   18/    F09B :                     
+(1)   19/    F09B :                     ; Zero page address
+(1)   20/    F09B : =$0                  addrH       EQU     $00
+(1)   21/    F09B : =$1                  addrL       EQU     $01
+(1)   22/    F09B : =$2                  userH       EQU     $02
+(1)   23/    F09B : =$3                  userL       EQU     $03
+(1)   24/    F09B : =$4                  ptrH        EQU     $04
+(1)   25/    F09B : =$5                  ptrL        EQU     $05
+(1)   26/    F09B :                     
+(1)   27/    F09B :                     reset:
+(1)   28/    F09B : 8E 01 FF                lds     #$01FF
+(1)   29/    F09E : BD F0 00                jsr     FT240_init
+(1)   30/    F0A1 : BD F0 69                jsr     LED_init
+(1)   31/    F0A4 :                     
+(1)   32/    F0A4 :                     InitMon:
+(1)   33/    F0A4 : 86 00                   ldaa    #$00            ; Clear monitor state
+(1)   34/    F0A6 : 97 01                   staa    addrL           
+(1)   35/    F0A8 : 97 00                   staa    addrH
+(1)   36/    F0AA : 97 03                   staa    userL
+(1)   37/    F0AC : 97 02                   staa    userH
+(1)   38/    F0AE :                         
+(1)   39/    F0AE :                     InfoCmd:
+(1)   40/    F0AE : CE F1 92                ldx     #InfoStr
+(1)   41/    F0B1 :                     $$loop
+(1)   42/    F0B1 : A6 00                   ldaa    0,x             ; get a char from the info string
+(1)   43/    F0B3 : 27 06                   beq     Prompt          ; End of string= exit
+(1)   44/    F0B5 : BD F0 2F                jsr     PutChar         ; not end end of string, output char
+(1)   45/    F0B8 : 08                      inx                     ; Point to next char in string
+(1)   46/    F0B9 : 20 F6                   bra     $$loop
+(1)   47/    F0BB :                     
+(1)   48/    F0BB :                     Prompt:
+(1)   49/    F0BB : 8D C8                   bsr     LED_RedOff
+(1)   50/    F0BD : 86 0A                   ldaa    #$0a            ; Show Prompt
+(1)   51/    F0BF : BD F0 2F                jsr     PutChar
+(1)   52/    F0C2 : 96 00                   ldaa    addrH           ; Show high address
+ AS V1.42 Beta [Bld 223] - Source File main.asm(mon.asm) - Page 4 - 9/4/2022 18:18:6
 
 
-(1)  111/    F0E0 : 20 93                   bra     Prompt          ; Continue with the new address 
-(1)  112/    F0E2 :                     
-(1)  113/    F0E2 :                     NotAddr:
-(1)  114/    F0E2 :                     ParseHex:
-(1)  115/    F0E2 :                         ; Process hex digit in accA [0..9][A..F][a..f]
-(1)  116/    F0E2 : 8A 20                   oraa    #$20            ; Force to lower
-(1)  117/    F0E4 : C6 0F                   ldab    #$0F
-(1)  118/    F0E6 : CE F1 3E                ldx     #(HexChars+15); initialize point to valid hex chars
-(1)  119/    F0E9 :                     ParseLoop:
-(1)  120/    F0E9 : A1 00                   cmpa    0,x             ; Is it this digit?
-(1)  121/    F0EB : 27 07                   beq     GotHex          ; Yes, process the nibble value
-(1)  122/    F0ED : 09                      dex                     ; No, advance pointer
-(1)  123/    F0EE : 5A                      decb
-(1)  124/    F0EF : 2A F8                   bpl     ParseLoop       ; Keep checking until index underflows
-(1)  125/    F0F1 : 7E F0 75                jmp     Prompt          ; Index underflowed, not a hex digit- abort
-(1)  126/    F0F4 :                     GotHex:
-(1)  127/    F0F4 : 37                      pshb                    ; save value for later
-(1)  128/    F0F5 : 96 02                   ldaa    userL           ; Shift the user value to the left by 4 bits
-(1)  129/    F0F7 : D6 03                   ldab    userH
-(1)  130/    F0F9 : 48                      asla
-(1)  131/    F0FA : 58                      aslb
-(1)  132/    F0FB : 48                      asla
-(1)  133/    F0FC : 58                      aslb
-(1)  134/    F0FD : 48                      asla
-(1)  135/    F0FE : 58                      aslb
-(1)  136/    F0FF : 48                      asla
-(1)  137/    F100 : 58                      aslb
-(1)  138/    F101 : 97 02                   staa    userL
-(1)  139/    F103 : D7 03                   stab    userH
-(1)  140/    F105 : 32                      pula                    ; get the value back
-(1)  141/    F106 : 9A 02                   oraa    userL           ; Insert the nibble into the user value
-(1)  142/    F108 : 97 02                   staa    userL
-(1)  143/    F10A : 20 86                   bra     NextChar        ; Done, get next char    
-(1)  144/    F10C :                         
-(1)  145/    F10C :                     ; Output the value in accA to the console as two hex bytes
-(1)  146/    F10C :                     PutHex:
-(1)  147/    F10C : 16                      tab                         ; save value
-(1)  148/    F10D : 44                      lsra                        ; move high nibble to low
-(1)  149/    F10E : 44                      lsra
-(1)  150/    F10F : 44                      lsra
-(1)  151/    F110 : 44                      lsra
-(1)  152/    F111 : CE F1 2F                ldx     #HexChars           ; lookup hex char for nibble
-(1)  153/    F114 : DF 02                   stx     userL
-(1)  154/    F116 : 9B 02                   adda    userL
-(1)  155/    F118 : DE 02                   ldx     userL
-(1)  156/    F11A : A6 00                   ldaa    0,x
-(1)  157/    F11C : BD F0 22                jsr     PutChar             ; output hex char for nibble
-(1)  158/    F11F : C4 0F                   andb    #$0f                ; mask high nibble away
-(1)  159/    F121 : CE F1 2F                ldx     #HexChars           ; lookup hex char for nibble
-(1)  160/    F124 : DF 02                   stx     userL
-(1)  161/    F126 : DB 02                   addb    userL
-(1)  162/    F128 : DE 02                   ldx     userL
-(1)  163/    F12A : A6 00                   ldaa    0,x
-(1)  164/    F12C : 7E F0 22                jmp     PutChar             ; output hex char for nibble
-(1)  165/    F12F :                     
-(1)  166/    F12F :                     HexChars:
-(1)  167/    F12F : 30 31 32 33 34 35       FCB     "0123456789abcdef"
-             F135 : 36 37 38 39 61 62 
-             F13B : 63 64 65 66       
-(1)  168/    F13F :                         
- AS V1.42 Beta [Bld 223] - Source File main.asm(mon.asm) - Page 5 - 8/23/2022 3:45:34
+(1)   53/    F0C4 : BD F1 5B                jsr     PutHex
+(1)   54/    F0C7 : 96 01                   ldaa    addrL           ; Show low address
+(1)   55/    F0C9 : BD F1 5B                jsr     PutHex
+(1)   56/    F0CC : 86 20                   ldaa    #' '            ; Space to seperate address and data
+(1)   57/    F0CE : BD F0 2F                jsr     PutChar
+(1)   58/    F0D1 : DE 00                   ldx     addrH           ; Show data at address
+(1)   59/    F0D3 : A6 00                   ldaa    0,x             
+(1)   60/    F0D5 : BD F1 5B                jsr     PutHex
+(1)   61/    F0D8 : 86 3E                   ldaa    #'>'            ; Show Prompt
+(1)   62/    F0DA : BD F0 2F                jsr     PutChar
+(1)   63/    F0DD :                      NextChar:   
+(1)   64/    F0DD : BD F0 53                jsr     GetChar         ; get char from user
+(1)   65/    F0E0 : 24 FB                   bcc     NextChar        ; Got a char? Keep polling until we get a char
+(1)   66/    F0E2 : 8D 96                   bsr     LED_RedOn
+(1)   67/    F0E4 : 16                      tab
+(1)   68/    F0E5 : BD F0 2F                jsr     PutChar         ; Should we echo the character?????
+(1)   69/    F0E8 : 17                      tba
+(1)   70/    F0E9 : 81 3F                   cmpa    #'?'            ; Show info?
+(1)   71/    F0EB : 27 C1                   beq     InfoCmd
+(1)   72/    F0ED : 81 3D                   cmpa    #'='            ; re-read address?
+(1)   73/    F0EF : 27 CA                   beq     Prompt
+(1)   74/    F0F1 : 81 0A                   cmpa    #$0a            ; Write data byte?
+(1)   75/    F0F3 : 26 08                   bne     NotWrite
+(1)   76/    F0F5 : 96 03                   ldaa    userL           ; Get the last 8-bit value entered
+(1)   77/    F0F7 : DE 00                   ldx     addrH
+(1)   78/    F0F9 : A7 00                   staa    0,x             ; Store at the current address
+(1)   79/    F0FB : 20 04                   bra     DoInc           ; Increment the current address
+(1)   80/    F0FD :                     
+(1)   81/    F0FD :                     NotWrite:
+(1)   82/    F0FD : 81 2B                   cmpa    #'+'            ; Incement address?
+(1)   83/    F0FF : 26 07                   bne     NotInc
+(1)   84/    F101 :                     DoInc:
+(1)   85/    F101 : DE 00                   ldx     addrH
+(1)   86/    F103 : 08                      inx          
+(1)   87/    F104 : DF 00                   stx     addrH
+(1)   88/    F106 : 20 B3                   bra     Prompt
+(1)   89/    F108 :                     
+(1)   90/    F108 :                     NotInc:
+(1)   91/    F108 : 81 2D                   cmpa    #'-'            ; Decrement address?
+(1)   92/    F10A : 26 07                   bne     NotDec
+(1)   93/    F10C : DE 00                   ldx     addrH
+(1)   94/    F10E : 09                      dex
+(1)   95/    F10F : DF 00                   stx     addrH
+(1)   96/    F111 : 20 A8                   bra     Prompt
+(1)   97/    F113 :                     
+(1)   98/    F113 :                     NotDec:
+(1)   99/    F113 : 81 67                   cmpa    #'g'            ; go to address?
+(1)  100/    F115 : 26 0A                   bne     NotGo
+(1)  101/    F117 : 86 9B                   lda     #(reset)&$FF    ; push the return address onto the stack
+(1)  102/    F119 : 36                      psha
+(1)  103/    F11A : 86 F0                   lda     #(reset)>>8
+(1)  104/    F11C : 36                      psha
+(1)  105/    F11D : DE 00                   ldx     addrH
+(1)  106/    F11F : 6E 00                   jmp     0,x
+(1)  107/    F121 :                     
+(1)  108/    F121 :                     NotGo:
+(1)  109/    F121 : 81 20                   cmpa    #' '            ; set current address?
+(1)  110/    F123 : 26 0C                   bne     NotAddr
+(1)  111/    F125 : DE 02                   ldx     userH           ; move the user value to the current address
+(1)  112/    F127 : DF 00                   stx     addrH
+ AS V1.42 Beta [Bld 223] - Source File main.asm(mon.asm) - Page 5 - 9/4/2022 18:18:6
 
 
-(1)  169/    F13F :                     InfoStr:
-(1)  170/    F13F : 0A 4D 69 6E 69 4D       FCB     10,"MiniMon,0.1,6802,0",10,0
-             F145 : 6F 6E 2C 30 2E 31 
-             F14B : 2C 36 38 30 32 2C 
-             F151 : 30 0A 00          
-(1)  171/    F154 :                        
-(1)  172/    F154 :                     irq:
-(1)  173/    F154 : 20 FE                   bra     irq
-(1)  174/    F156 :                     
-(1)  175/    F156 :                     swi: 
-(1)  176/    F156 : 20 FE                   bra     swi
-(1)  177/    F158 :                         
-(1)  178/    F158 :                     nmi:
-(1)  179/    F158 : 20 FE                   bra     nmi
-(1)  180/    F15A :                     
-(1)  181/    F15A :                     
-       5/    F15A :                         include "vec.asm"
-(1)    1/    F15A :                         CPU     6800
-(1)    2/    F15A :                     
-(1)    3/    F15A :                     ; Vector table
-(1)    4/    FFF8 :                         ORG    $FFF8
-(1)    5/    FFF8 : F1 54                   ADR     irq
-(1)    6/    FFFA : F1 56                   ADR     swi
-(1)    7/    FFFC : F1 58                   ADR     nmi
-(1)    8/    FFFE : F0 5A                   ADR     reset
+(1)  113/    F129 : 86 00                   ldaa    #$00            ; clear user value
+(1)  114/    F12B : 97 03                   staa    userL
+(1)  115/    F12D : 97 02                   staa    userH
+(1)  116/    F12F : 20 8A                   bra     Prompt          ; Continue with the new address 
+(1)  117/    F131 :                     
+(1)  118/    F131 :                     NotAddr:
+(1)  119/    F131 :                     ParseHex:
+(1)  120/    F131 :                         ; Process hex digit in accA [0..9][A..F][a..f]
+(1)  121/    F131 : 8A 20                   oraa    #$20            ; Force to lower
+(1)  122/    F133 : C6 0F                   ldab    #$0F
+(1)  123/    F135 : CE F1 91                ldx     #(HexChars+15); initialize point to valid hex chars
+(1)  124/    F138 :                     ParseLoop:
+(1)  125/    F138 : A1 00                   cmpa    0,x             ; Is it this digit?
+(1)  126/    F13A : 27 07                   beq     GotHex          ; Yes, process the nibble value
+(1)  127/    F13C : 09                      dex                     ; No, advance pointer
+(1)  128/    F13D : 5A                      decb
+(1)  129/    F13E : 2A F8                   bpl     ParseLoop       ; Keep checking until index underflows
+(1)  130/    F140 : 7E F0 BB                jmp     Prompt          ; Index underflowed, not a hex digit- abort
+(1)  131/    F143 :                     GotHex:
+(1)  132/    F143 : 37                      pshb                    ; save value for later
+(1)  133/    F144 : 96 03                   ldaa    userL           ; Shift the user value to the left by 4 bits
+(1)  134/    F146 : D6 02                   ldab    userH
+(1)  135/    F148 : 48                      asla
+(1)  136/    F149 : 59                      rolb
+(1)  137/    F14A : 48                      asla
+(1)  138/    F14B : 59                      rolb
+(1)  139/    F14C : 48                      asla
+(1)  140/    F14D : 59                      rolb
+(1)  141/    F14E : 48                      asla
+(1)  142/    F14F : 59                      rolb
+(1)  143/    F150 : 97 03                   staa    userL
+(1)  144/    F152 : D7 02                   stab    userH
+(1)  145/    F154 : 32                      pula                    ; get the value back
+(1)  146/    F155 : 9A 03                   oraa    userL           ; Insert the nibble into the user value
+(1)  147/    F157 : 97 03                   staa    userL
+(1)  148/    F159 : 20 82                   bra     NextChar        ; Done, get next char    
+(1)  149/    F15B :                         
+(1)  150/    F15B :                     ; Output the value in accA to the console as two hex bytes
+(1)  151/    F15B :                     PutHex:
+(1)  152/    F15B : 16                      tab                         ; save value
+(1)  153/    F15C : 44                      lsra                        ; move high nibble to low
+(1)  154/    F15D : 44                      lsra
+(1)  155/    F15E : 44                      lsra
+(1)  156/    F15F : 44                      lsra
+(1)  157/    F160 : CE F1 82                ldx     #HexChars           ; lookup hex char for nibble
+(1)  158/    F163 : DF 04                   stx     ptrH
+(1)  159/    F165 : 9B 05                   adda    ptrL                ; add in offset (assumes indexing within same page)
+(1)  160/    F167 : 97 05                   staa    ptrL
+(1)  161/    F169 : DE 04                   ldx     ptrH
+(1)  162/    F16B : A6 00                   ldaa    0,x
+(1)  163/    F16D : BD F0 2F                jsr     PutChar             ; output hex char for nibble
+(1)  164/    F170 : C4 0F                   andb    #$0f                ; mask high nibble away
+(1)  165/    F172 : CE F1 82                ldx     #HexChars           ; lookup hex char for nibble
+(1)  166/    F175 : DF 04                   stx     ptrH
+(1)  167/    F177 : DB 05                   addb    ptrL
+(1)  168/    F179 : D7 05                   stab    ptrL
+(1)  169/    F17B : DE 04                   ldx     ptrH
+(1)  170/    F17D : A6 00                   ldaa    0,x
+(1)  171/    F17F : 7E F0 2F                jmp     PutChar             ; output hex char for nibble
+(1)  172/    F182 :                     
+ AS V1.42 Beta [Bld 223] - Source File main.asm(mon.asm) - Page 6 - 9/4/2022 18:18:6
+
+
+(1)  173/    F182 :                     HexChars:
+(1)  174/    F182 : 30 31 32 33 34 35       FCB     "0123456789abcdef"
+             F188 : 36 37 38 39 61 62 
+             F18E : 63 64 65 66       
+(1)  175/    F192 :                         
+(1)  176/    F192 :                     InfoStr:
+(1)  177/    F192 : 0A 4D 69 6E 69 4D       FCB     10,"MiniMon,0.1,6802,0",10,0
+             F198 : 6F 6E 2C 30 2E 31 
+             F19E : 2C 36 38 30 32 2C 
+             F1A4 : 30 0A 00          
+(1)  178/    F1A7 :                        
+(1)  179/    F1A7 :                     irq:
+(1)  180/    F1A7 : 20 FE                   bra     irq
+(1)  181/    F1A9 :                     
+(1)  182/    F1A9 :                     swi: 
+(1)  183/    F1A9 : 20 FE                   bra     swi
+(1)  184/    F1AB :                         
+(1)  185/    F1AB :                     nmi:
+(1)  186/    F1AB : 20 FE                   bra     nmi
+(1)  187/    F1AD :                     
+(1)  188/    F1AD :                     
+       6/    F1AD :                         include "vec.asm"
+(1)    1/    F1AD :                         CPU     6800
+(1)    2/    F1AD :                     
+(1)    3/    F1AD :                     ; Vector table
+(1)    4/    FFF8 :                         ORG     $FFF8
+(1)    5/    FFF8 : F1 A7                   ADR     irq
+(1)    6/    FFFA : F1 A9                   ADR     swi
+(1)    7/    FFFC : F1 AB                   ADR     nmi
+(1)    8/    FFFE : F0 9B                   ADR     reset
 (1)    9/   10000 :                     
-       6/   10000 :                     
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 6 - 8/23/2022 3:45:34
+       7/   10000 :                     
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 7 - 9/4/2022 18:18:6
 
 
   Symbol Table (* = unused):
   --------------------------
 
- ADDRH :                          1 - |  ADDRL :                          0 - |
+ ADDRH :                          0 - |  ADDRL :                          1 - |
 *ARCHITECTURE :                                        "i386-unknown-win32" - |
 *CASESENSITIVE :                  0 - | *COMPMODE :                       0 - |
-*CONSTPI :        3.141592653589793 - | *DATE :                 "8/23/2022" - |
- DOINC :                       F0B2 C | *FALSE :                          0 - |
- FT240_INIT :                  F000 C |  FT240_NOSTB :                    E - |
- FT240_RDSTB :                    C - |  FT240_WRMSK :                    1 - |
-*FULLPMMU :                       1 - |  GETCHAR :                     F044 C |
- GOTHEX :                      F0F4 C | *HAS64 :                          0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                  "9/4/2022" - |
+ DOINC :                       F101 C | *FALSE :                          0 - |
+ FT240_FLUSH :                 F01C C |  FT240_INIT :                  F000 C |
+ FT240_NOSTB :                    E - |  FT240_RDSTB :                    C - |
+ FT240_RXF :                     80 - |  FT240_SIWU :                    20 - |
+ FT240_TXE :                     40 - |  FT240_WRMSK :                    1 - |
+*FULLPMMU :                       1 - |  GETCHAR :                     F053 C |
+ GOTHEX :                      F143 C | *HAS64 :                          0 - |
 *HASFPU :                         0 - | *HASPMMU :                        0 - |
- HEXCHARS :                    F12F C |  INFOCMD :                     F069 C |
- INFOSTR :                     F13F C | *INITMON :                     F05F C |
-*INSUPMODE :                      0 - |  IRQ :                         F154 C |
-*LISTON :                         1 - |  LOOP28 :                      F06C C |
-*MACEXP :                         7 - | *MOMCPU :                      6800 - |
-*MOMCPUNAME :                "6800" - | *NESTMAX :                      100 - |
- NEXTCHAR :                    F092 C |  NMI :                         F158 C |
- NOCHAR18 :                    F058 C |  NOTADDR :                     F0E2 C |
- NOTDEC :                      F0C4 C |  NOTGO :                       F0D2 C |
- NOTINC :                      F0B9 C |  NOTWRITE :                    F0AE C |
-*PADDING :                        0 - | *PARSEHEX :                    F0E2 C |
- PARSELOOP :                   F0E9 C |  PIA_ACR :                      20B - |
+ HEXCHARS :                    F182 C |  INFOCMD :                     F0AE C |
+ INFOSTR :                     F192 C | *INITMON :                     F0A4 C |
+*INSUPMODE :                      0 - |  IRQ :                         F1A7 C |
+ LED_BLUE :                       2 - |  LED_GREEN :                      8 - |
+ LED_INIT :                    F069 C |  LED_RED :                        4 - |
+ LED_REDOFF :                  F085 C |  LED_REDON :                   F07A C |
+*LED_REDTOGGLE :               F090 C | *LISTON :                         1 - |
+ LOOP44 :                      F0B1 C | *MACEXP :                         7 - |
+*MOMCPU :                      6800 - | *MOMCPUNAME :                "6800" - |
+*NESTMAX :                      100 - |  NEXTCHAR :                    F0DD C |
+ NMI :                         F1AB C |  NOCHAR20 :                    F02E C |
+ NOCHAR22 :                    F067 C |  NOTADDR :                     F131 C |
+ NOTDEC :                      F113 C |  NOTGO :                       F121 C |
+ NOTINC :                      F108 C |  NOTWRITE :                    F0FD C |
+*PADDING :                        0 - | *PARSEHEX :                    F131 C |
+ PARSELOOP :                   F138 C | *PIA_ACR :                      20B - |
  PIA_BASE :                     200 - |  PIA_DDRA :                     203 - |
  PIA_DDRB :                     202 - |  PIA_IN :                         0 - |
  PIA_OUT :                       FF - |  PIA_PCR :                      20C - |
  PIA_PORTA :                    201 - |  PIA_PORTB :                    200 - |
- PROMPT :                      F075 C |  PUTCHAR :                     F022 C |
- PUTHEX :                      F10C C | *RELAXED :                        0 - |
- RESET :                       F05A C |  SWI :                         F156 C |
-*TIME :                   "3:45:34" - | *TRUE :                           1 - |
- USERH :                          3 - |  USERL :                          2 - |
-*VERSION :                     142F - |
+ PROMPT :                      F0BB C |  PTRH :                           4 - |
+ PTRL :                           5 - |  PUTCHAR :                     F02F C |
+ PUTHEX :                      F15B C |  PUTWAIT21 :                   F030 C |
+*RELAXED :                        0 - |  RESET :                       F09B C |
+ SWI :                         F1A9 C | *TIME :                   "18:18:6" - |
+*TRUE :                           1 - |  USERH :                          2 - |
+ USERL :                          3 - | *VERSION :                     142F - |
 
-     62 symbols
-     23 unused symbols
+     77 symbols
+     25 unused symbols
 
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 7 - 8/23/2022 3:45:34
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 8 - 9/4/2022 18:18:6
 
 
   Code Pages:
@@ -331,116 +406,159 @@
 STANDARD (0 changed characters)
 
 1 code page
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 8 - 8/23/2022 3:45:34
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 9 - 9/4/2022 18:18:6
 
 
 
   Cross Reference List:
   ---------------------
 
-symbol ADDRH (=1, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:21):
+symbol ADDRH (=0, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:20):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     32       48    
+     35       52       58       77       85       87       93       95    
+    105      112    
 
-symbol ADDRL (=0, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:20):
+symbol ADDRL (=1, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:21):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     31       50       54       72       80       82       88       90    
-    100      107    
+     34       54    
 
-symbol DOINC (=F0B2, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:79):
+symbol DOINC (=F101, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:84):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     74    
+     79    
 
-symbol FT240_INIT (=F000, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:20):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     27    
-
-symbol FT240_NOSTB (=E, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:15):
+symbol FT240_FLUSH (=F01C, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:36):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     23       60    
+     44    
 
-symbol FT240_RDSTB (=C, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:16):
+symbol FT240_INIT (=F000, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:23):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     29    
+
+symbol FT240_NOSTB (=E, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:16):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     57    
+     24       42       75    
+
+symbol FT240_RDSTB (=C, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:17):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
+     39       72    
+
+symbol FT240_RXF (=80, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:19):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
+     33    
+
+symbol FT240_SIWU (=20, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:15):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
+     32    
+
+symbol FT240_TXE (=40, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:18):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
+     33       53    
 
 symbol FT240_WRMSK (=1, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:14):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     26       31       45       47    
+     27       32       60       62    
 
-symbol GETCHAR (=F044, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:54):
+symbol GETCHAR (=F053, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:69):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     60    
+     64    
 
-symbol GOTHEX (=F0F4, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:126):
+symbol GOTHEX (=F143, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:131):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    121    
+    126    
 
-symbol HEXCHARS (=F12F, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:166):
+symbol HEXCHARS (=F182, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:173):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    118      152      159    
+    123      157      165    
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 10 - 9/4/2022 18:18:6
 
-symbol INFOCMD (=F069, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:36):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     66    
 
-symbol INFOSTR (=F13F, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:169):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     37    
 
-symbol IRQ (=F154, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:172):
+symbol INFOCMD (=F0AE, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:39):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    173    
+     71    
+
+symbol INFOSTR (=F192, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:176):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     40    
+
+symbol IRQ (=F1A7, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:179):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    180    
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\vec.asm :
       5    
 
-symbol LOOP28 (=F06C, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:38):
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 9 - 8/23/2022 3:45:34
+symbol LED_BLUE (=2, C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm:7):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm :
+     11       14    
 
+symbol LED_GREEN (=8, C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm:6):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm :
+     11       14    
 
+symbol LED_INIT (=F069, C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm:9):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     43    
+     30    
 
-symbol NEXTCHAR (=F092, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:59):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     61      143    
+symbol LED_RED (=4, C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm:5):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm :
+     11       14       21       29       37    
 
-symbol NMI (=F158, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:178):
+symbol LED_REDOFF (=F085, C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm:26):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    179    
+     49    
+
+symbol LED_REDON (=F07A, C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm:18):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     66    
+
+symbol LOOP44 (=F0B1, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:41):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     46    
+
+symbol NEXTCHAR (=F0DD, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:63):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     65      148    
+
+symbol NMI (=F1AB, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:185):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    186    
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\vec.asm :
       7    
 
-symbol NOCHAR18 (=F058, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:64):
+symbol NOCHAR20 (=F02E, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:45):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     56    
+     38    
 
-symbol NOTADDR (=F0E2, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:113):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    105    
-
-symbol NOTDEC (=F0C4, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:93):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     87    
-
-symbol NOTGO (=F0D2, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:103):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     95    
-
-symbol NOTINC (=F0B9, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:85):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     78    
-
-symbol NOTWRITE (=F0AE, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:76):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     70    
-
-symbol PARSELOOP (=F0E9, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:119):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    124    
-
-symbol PIA_ACR (=20B, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:8):
+symbol NOCHAR22 (=F067, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:79):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     22    
+     71    
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 11 - 9/4/2022 18:18:6
+
+
+
+symbol NOTADDR (=F131, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:118):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    110    
+
+symbol NOTDEC (=F113, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:98):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     92    
+
+symbol NOTGO (=F121, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:108):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    100    
+
+symbol NOTINC (=F108, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:90):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     83    
+
+symbol NOTWRITE (=F0FD, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:81):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     75    
+
+symbol PARSELOOP (=F138, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:124):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    129    
 
 symbol PIA_BASE (=200, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:3):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
@@ -448,78 +566,88 @@ symbol PIA_BASE (=200, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:3):
 
 symbol PIA_DDRA (=203, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:7):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     29       43       50    
+     30       58       65    
 
 symbol PIA_DDRB (=202, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:6):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     30       33    
+     31       34    
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm :
+     13       15    
 
 symbol PIA_IN (=0, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:11):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     28       49    
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 10 - 8/23/2022 3:45:34
-
-
+     29       64    
 
 symbol PIA_OUT (=FF, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:12):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     42    
+     57    
 
 symbol PIA_PCR (=20C, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:9):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     24       58       61    
+     25       40       43       73       76    
 
 symbol PIA_PORTA (=201, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:5):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     41       59    
+     56       74    
 
 symbol PIA_PORTB (=200, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:4):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     25       27       38       44       46       48       55    
+     26       28       37       52       59       61       63       70    
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\LED.asm :
+     10       12       20       22       28       30       36       38    
+ AS V1.42 Beta [Bld 223] - Source File main.asm - Page 12 - 9/4/2022 18:18:6
 
-symbol PROMPT (=F075, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:45):
+
+
+symbol PROMPT (=F0BB, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:48):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     40       68       83       91      111      125    
+     43       73       88       96      116      130    
 
-symbol PUTCHAR (=F022, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:37):
+symbol PTRH (=4, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:24):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    158      161      166      169    
+
+symbol PTRL (=5, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:25):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+    159      160      167      168    
+
+symbol PUTCHAR (=F02F, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:49):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     44       51       57       62       68      163      171    
+
+symbol PUTHEX (=F15B, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:151):
+ file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
+     53       55       60    
+
+symbol PUTWAIT21 (=F030, C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm:51):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\uart.asm :
-     40    
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     41       47       53       58       63      157      164    
+     54    
 
-symbol PUTHEX (=F10C, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:146):
+symbol RESET (=F09B, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:27):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     49       51       56    
-
-symbol RESET (=F05A, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:25):
- file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     96       98    
+    101      103    
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\vec.asm :
       8    
 
-symbol SWI (=F156, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:175):
+symbol SWI (=F1A9, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:182):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-    176    
+    183    
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\vec.asm :
       6    
 
-symbol USERH (=3, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:23):
+symbol USERH (=2, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:22):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     34      110      129      139    
+     37      111      115      134      144    
 
-symbol USERL (=2, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:22):
+symbol USERL (=3, C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm:23):
  file C:\Users\jdlowe\prj\Homebrew\mon\6802\mon.asm :
-     33       71      106      109      128      138      141      142    
-    153      154      155      160      161      162    
+     36       76      114      133      143      146      147    
 
 
 
-0.01 seconds assembly time
+0.00 seconds assembly time
 
-    262 lines source file
+    327 lines source file
       2 passes
       0 errors
       0 warnings
- AS V1.42 Beta [Bld 223] - Source File main.asm - Page 11 - 8/23/2022 3:45:34
-
-

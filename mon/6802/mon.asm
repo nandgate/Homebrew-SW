@@ -17,14 +17,17 @@
 ; <sp>  Set current address   
 
 ; Zero page address
-addrL       EQU     $00
-addrH       EQU     $01
-userL       EQU     $02
-userH       EQU     $03
+addrH       EQU     $00
+addrL       EQU     $01
+userH       EQU     $02
+userL       EQU     $03
+ptrH        EQU     $04
+ptrL        EQU     $05
 
 reset:
     lds     #$01FF
-    bsr     FT240_init
+    jsr     FT240_init
+    jsr     LED_init
 
 InitMon:
     ldaa    #$00            ; Clear monitor state
@@ -38,29 +41,31 @@ InfoCmd:
 $$loop
     ldaa    0,x             ; get a char from the info string
     beq     Prompt          ; End of string= exit
-    bsr     PutChar         ; not end end of string, output char
+    jsr     PutChar         ; not end end of string, output char
     inx                     ; Point to next char in string
     bra     $$loop
 
 Prompt:
+    bsr     LED_RedOff
     ldaa    #$0a            ; Show Prompt
-    bsr     PutChar
+    jsr     PutChar
     ldaa    addrH           ; Show high address
     jsr     PutHex
     ldaa    addrL           ; Show low address
     jsr     PutHex
     ldaa    #' '            ; Space to seperate address and data
-    bsr     PutChar
-    ldx     addrL           ; Show data at address
+    jsr     PutChar
+    ldx     addrH           ; Show data at address
     ldaa    0,x             
     jsr     PutHex
     ldaa    #'>'            ; Show Prompt
-    bsr     PutChar
+    jsr     PutChar
  NextChar:   
-    bsr     GetChar         ; get char from user
+    jsr     GetChar         ; get char from user
     bcc     NextChar        ; Got a char? Keep polling until we get a char
+    bsr     LED_RedOn
     tab
-    bsr     PutChar         ; Should we echo the character?????
+    jsr     PutChar         ; Should we echo the character?????
     tba
     cmpa    #'?'            ; Show info?
     beq     InfoCmd
@@ -69,7 +74,7 @@ Prompt:
     cmpa    #$0a            ; Write data byte?
     bne     NotWrite
     ldaa    userL           ; Get the last 8-bit value entered
-    ldx     addrL
+    ldx     addrH
     staa    0,x             ; Store at the current address
     bra     DoInc           ; Increment the current address
 
@@ -77,34 +82,34 @@ NotWrite:
     cmpa    #'+'            ; Incement address?
     bne     NotInc
 DoInc:
-    ldx     addrL
+    ldx     addrH
     inx          
-    stx     addrL
+    stx     addrH
     bra     Prompt
 
 NotInc:
     cmpa    #'-'            ; Decrement address?
     bne     NotDec
-    ldx     addrL
+    ldx     addrH
     dex
-    stx     addrL
+    stx     addrH
     bra     Prompt
 
 NotDec:
     cmpa    #'g'            ; go to address?
     bne     NotGo
-    lda     #(reset)>>8     ; push the return address onto the stack
+    lda     #(reset)&$FF    ; push the return address onto the stack
     psha
-    lda     #(reset)&$FF
+    lda     #(reset)>>8
     psha
-    ldx     addrL
+    ldx     addrH
     jmp     0,x
 
 NotGo:
     cmpa    #' '            ; set current address?
     bne     NotAddr
-    ldx     userL           ; move the user value to the current address
-    stx     addrL
+    ldx     userH           ; move the user value to the current address
+    stx     addrH
     ldaa    #$00            ; clear user value
     staa    userL
     staa    userH
@@ -128,13 +133,13 @@ GotHex:
     ldaa    userL           ; Shift the user value to the left by 4 bits
     ldab    userH
     asla
-    aslb
+    rolb
     asla
-    aslb
+    rolb
     asla
-    aslb
+    rolb
     asla
-    aslb
+    rolb
     staa    userL
     stab    userH
     pula                    ; get the value back
@@ -150,16 +155,18 @@ PutHex:
     lsra
     lsra
     ldx     #HexChars           ; lookup hex char for nibble
-    stx     userL
-    adda    userL
-    ldx     userL
+    stx     ptrH
+    adda    ptrL                ; add in offset (assumes indexing within same page)
+    staa    ptrL
+    ldx     ptrH
     ldaa    0,x
     jsr     PutChar             ; output hex char for nibble
     andb    #$0f                ; mask high nibble away
     ldx     #HexChars           ; lookup hex char for nibble
-    stx     userL
-    addb    userL
-    ldx     userL
+    stx     ptrH
+    addb    ptrL
+    stab    ptrL
+    ldx     ptrH
     ldaa    0,x
     jmp     PutChar             ; output hex char for nibble
 
