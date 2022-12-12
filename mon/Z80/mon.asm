@@ -42,7 +42,7 @@ $$loop:
     halt
 
 Prompt:
-    call    LED_RedOff
+    call    LED_RED_Off
     ld      a,$0a           ; Show Prompt
     call    PutChar
     ld      a,h             ; Show high address
@@ -58,7 +58,7 @@ Prompt:
  NextChar:   
     call    GetChar         ; get char from user
     jp      nc,NextChar     ; Got a char? Keep polling until we get a char
-    call    LED_RedOn
+    call    LED_RED_On
     ld      b,a
     call    PutChar         ; Should we echo the character?????
     ld      a,b
