@@ -46,7 +46,7 @@ $$loop
     jmp     $$loop
 
 Prompt:
-    jsr     LED_RedOff
+    jsr     LED_RED_Off
     lda     #$0a            ; Show Prompt
     jsr     PutChar
     lda     addrH           ; Show high address
@@ -63,7 +63,7 @@ Prompt:
  NextChar:   
     jsr     GetChar         ; get char from user
     bcc     NextChar        ; Got a char? Keep polling until we get a char
-    jsr     LED_RedOn
+    jsr     LED_RED_On
     tax
     jsr     PutChar         ; Should we echo the character?????
     txa

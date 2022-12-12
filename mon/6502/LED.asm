@@ -6,6 +6,37 @@ LED_RED     EQU     $04
 LED_GREEN   EQU     $08
 LED_BLUE    EQU     $02
 
+ledon   macro   name,bitName,{GLOBALSYMBOLS}
+LED_name_On:
+    pha
+    lda     PIA_PORTB
+    ora     #bitName
+    sta     PIA_PORTB
+    pla
+    rts
+    endm
+    
+ledoff   macro   name,bitName,{GLOBALSYMBOLS}
+LED_name_Off:
+    pha
+    lda     PIA_PORTB
+    and     #(~bitName) & 255
+    sta     PIA_PORTB
+    pla
+    rts
+    endm
+
+ledtoggle   macro   name,bitName,{GLOBALSYMBOLS}
+LED_name_Toggle:
+    pha
+    lda     PIA_PORTB
+    eor     #bitName
+    sta     PIA_PORTB
+    pla
+    rts
+    endm
+
+
 LED_init:
     lda     PIA_PORTB
     and     #(~(LED_RED | LED_GREEN | LED_BLUE)) & 255
@@ -15,27 +46,14 @@ LED_init:
     sta     PIA_DDRB
     rts
 
-LED_RedOn:
-    pha
-    lda     PIA_PORTB
-    ora     #LED_RED
-    sta     PIA_PORTB
-    pla
-    rts
+    ledon       Red,LED_RED
+    ledoff      Red,LED_RED
+    ledtoggle   Red,LED_RED
+    
+    ledon       Green,LED_GREEN
+    ledoff      Green,LED_GREEN
+    ledtoggle   Green,LED_GREEN
 
-LED_RedOff:
-    pha
-    lda     PIA_PORTB
-    and     #(~LED_RED) & 255
-    sta     PIA_PORTB
-    pla
-    rts
-    
-LED_RedToggle:
-    pha
-    lda     PIA_PORTB
-    eor     #LED_RED
-    sta     PIA_PORTB
-    pla
-    rts
-    
+    ledon       Blue,LED_BLUE
+    ledoff      Blue,LED_BLUE
+    ledtoggle   Blue,LED_BLUE  
