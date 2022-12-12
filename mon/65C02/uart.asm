@@ -11,26 +11,38 @@ PIA_PCR     EQU     PIA_BASE + $C
 PIA_IN      EQU     $00
 PIA_OUT     EQU     $FF
 
-FT240_WRMSK EQU     $01     ; WR on bit-0
+FT240_WRMSK EQU     $01     ; WR on bit-0, pulse high to write to the FIFO
+FT240_SIWU  EQU     $20     ; SIWU on bit 5, always high
 FT240_NOSTB EQU     $0E     ; RD# = 1, irqs disabled 
-FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled 
-
+FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled (used to read from the FIFO)
+FT240_TXE   EQU     $40     ; TXE# on bit 6 (FIFO can accept data when low)
+FT240_RXF   EQU     $80     ; RXF# on bit 7 (FIFO has data when low)
 
 ; Initialize the VIA to operate iwth the FT240, which is use for console IO.
 FT240_init:
-    lda     #$FC
-    sta     PIA_ACR         ; Disable input latching, don't touch the other bits
     lda     #FT240_NOSTB    ; RD# = 1
     sta     PIA_PCR
-    lda     PIA_PORTB       ; WR = 0, don't touch the other bits
-    and     #~FT240_WRMSK
+    lda     PIA_PORTB
+    and     #~FT240_WRMSK   ; WR = 0, don't touch the other bits
+    ora     #FT240_SIWU     ; SIWU = 1, dont' tough the other bits
     sta     PIA_PORTB
     lda     #PIA_IN         ; data port input, its only output when writing to FT240
     sta     PIA_DDRA
     lda     PIA_DDRB        ; control ports bits for FT240, don't touch other bits
-    ora     #FT240_WRMSK    ; WR is ouptut
-    and     #$3F            ; TXE# and RXF# are input
+    ora     #(FT240_WRMSK | FT240_SIWU) & $FF   ; Ouptut pins
+    and     #(~(FT240_RXF | FT240_TXE)) & $FF   ; Input pins
     sta     PIA_DDRB
+
+FT240_Flush:
+    bit     PIA_PORTB       ; Test RXF# (bit-7)
+    bmi     $$NoChar        ; Branch when RXF# is set, no data in FIFO
+    lda     #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
+    sta     PIA_PCR
+    nop
+    lda     #FT240_NOSTB    ; FT240 RD# = 1
+    sta     PIA_PCR
+    jmp     FT240_Flush
+$$NoChar:
     rts
 
 ; Output the value in the acc to the console    

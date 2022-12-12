@@ -26,8 +26,8 @@ reset:
     cld                     ; Make sure we are NOT is decimal mode
     ldx     #$FF
     txs
-
     jsr     FT240_init
+    jsr     LED_init
 
 InitMon:
     stz     addrL           ; Clear monitor state
@@ -45,6 +45,7 @@ $$loop
     bra     $$loop
 
 Prompt:
+    jsr     LED_RED_Off
     lda     #$0a            ; Show Prompt
     jsr     PutChar
     lda     addrH           ; Show high address
@@ -61,6 +62,7 @@ Prompt:
  NextChar:   
     jsr     GetChar         ; get char from user
     bcc     NextChar        ; Got a char? Keep polling until we get a char
+    jsr     LED_RED_On
     tax
     jsr     PutChar         ; Should we echo the character?????
     txa
@@ -110,8 +112,9 @@ NotGo:
     sta     addrL
     lda     userH
     sta     addrH
-    stz     userL           ; clear user value
-    stz     userH
+    lda     #$00            ; clear user value
+    sta     userL
+    sta     userH
     bra     Prompt          ; Continue with the new address 
 
 NotAddr:
@@ -137,7 +140,7 @@ GotHex:
     txa                     ; Get the nibble value
     ora     userL           ; Insert the nibble into the user value
     sta     userL
-    bra     NextChar        ; Done, get next char    
+    jmp     NextChar        ; Done, get next char    
     
 ; Output the value in acc to the console as two hex bytes
 PutHex:
@@ -159,7 +162,7 @@ HexChars:
     FCB     "0123456789abcdef"
     
 InfoStr:
-    FCB     10,"MiniMon,0.1,6502,0",10,0
+    FCB     10,"MiniMon,0.1,65C02,0",10,0
    
 nmi:
     bra     nmi
