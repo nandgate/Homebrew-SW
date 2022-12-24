@@ -1,4 +1,6 @@
 
+#define PULSE_DURATION 200
+
 typedef enum {
   CTRL_RESET= 0,
   CTRL_IRQ0,

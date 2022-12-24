@@ -28,6 +28,8 @@ const uint8_t LED_N_PIN[] = {
   [LED_5] = LED_5_PIN
 };
 
+static uint8_t led_phase = 0;
+
 void led_Init(void);
 void led_Set(uint8_t led, uint8_t color);
 void led_Scan(void);
@@ -59,8 +61,6 @@ void led_Set(uint8_t led, uint8_t color) {
   led_color[led] = color; 
 }
 
-bool phase = true;
-
 void led_Scan(void) {
   // turn off the current LED
   pinMode(LED_N_PIN[led_state], INPUT);      
@@ -70,20 +70,15 @@ void led_Scan(void) {
   led_state++;
   if (led_state >= NUMBER_OF_LEDS) {
     led_state = 0;
-    phase = !phase;
+    led_phase = (led_phase < 8) ? led_phase+1 : 0;
   }
 
   // Determine the state of the command and LED signals
   uint8_t c, n;
   if (led_color[led_state] == LED_YELLOW) {
       // Yellow alternates between red and green
-      c= phase ? LED_RED : LED_GREEN;
-      n= phase ? LED_RED : LED_GREEN;
-  }
-  else if ((led_color[led_state] == LED_RED) && phase) {
-    // Don't show red half the time (to reduce brightness)
-    c= LED_OFF;
-    n= LED_OFF;
+      c= (led_phase < 1) ? LED_RED : LED_GREEN;
+      n= c; //led_phase ? LED_RED : LED_GREEN;
   }
   else {
     // Show red, green and off colors
