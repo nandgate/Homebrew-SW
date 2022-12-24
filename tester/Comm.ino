@@ -27,16 +27,17 @@
 void com_Init(void) {
     Serial.begin(9600);
     analogReference(INTERNAL);
+    analogRead(V12_MON); // throw away the fisrt sample from the ADC
 }
 
 void com_parse(char c) {
 
   switch(c) {
-     case '?':
-        Serial.print("\ntester,");
-        Serial.print(VERSION);
-        Serial.println(NUMBER_OF_SLOTS);
-        break;
+    case '?':
+      Serial.print("\ntester,");
+      Serial.print(VERSION);
+      Serial.println(NUMBER_OF_SLOTS);
+      break;
 
     case '-':
       Serial.print("12V_MON,");

@@ -19,14 +19,8 @@ void setup() {
   com_parse('U');   // all LEDS off
   com_parse('*');   // all ctrl inactive
   com_parse('?');   // show query message
+  com_parse('-');   // show 12V_MON message
   com_prompt();     // show prompt
-
-  // for LED testing
-  com_parse('q');
-  com_parse('s');
-  com_parse('c');
-  com_parse('r');
-  
 }
 
 void heartbeat(void) {
