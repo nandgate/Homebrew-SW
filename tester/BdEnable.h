@@ -12,3 +12,4 @@ typedef enum {
 void bden_Init(void);
 void bden_Select(bden_t slot);
 bool bden_IsMainBdReady(void);
+bden_t bden_GetSelected(void);
