@@ -1,0 +1,143 @@
+Segment CODE
+File Z:\prj\homebrew\software\6802\monitor\../common\vec.asm
+    5:0000FFF8 
+File monitor.asm
+   33:0000F0DD    34:0000F0E0    35:0000F0E3    38:0000F0E6    39:0000F0E8 
+   40:0000F0EA    41:0000F0EC    42:0000F0EE    45:0000F0F0    47:0000F0F3 
+   48:0000F0F5    49:0000F0F7    50:0000F0FA    51:0000F0FB    54:0000F0FD 
+   55:0000F100    56:0000F102    57:0000F105    58:0000F107    59:0000F10A 
+   60:0000F10C    61:0000F10F    62:0000F111    63:0000F114    64:0000F116 
+   65:0000F118    66:0000F11B    67:0000F11D    69:0000F120    70:0000F123 
+   71:0000F125    72:0000F128    73:0000F129    74:0000F12C    75:0000F12D 
+   76:0000F12F    77:0000F131    78:0000F133    79:0000F135    80:0000F137 
+   81:0000F139    82:0000F13B    83:0000F13D    84:0000F13F    87:0000F141 
+   88:0000F143    90:0000F145    91:0000F147    92:0000F148    93:0000F14A 
+   96:0000F14C    97:0000F14E    98:0000F150    99:0000F152   100:0000F153 
+  101:0000F155   104:0000F157   105:0000F159   106:0000F15B   107:0000F15D 
+  108:0000F15E   109:0000F160   110:0000F161   111:0000F163   114:0000F165 
+  115:0000F167   116:0000F169   117:0000F16B   118:0000F16D   119:0000F16F 
+  120:0000F171   121:0000F173   126:0000F175   127:0000F177   128:0000F179 
+  130:0000F17C   131:0000F17E   132:0000F180   133:0000F181   134:0000F182 
+  135:0000F184   137:0000F187   138:0000F188   139:0000F18A   140:0000F18C 
+  141:0000F18D   142:0000F18E   143:0000F18F   144:0000F190   145:0000F191 
+  146:0000F192   147:0000F193   148:0000F194   149:0000F196   150:0000F198 
+  151:0000F199   152:0000F19B   153:0000F19D   157:0000F19F   158:0000F1A0 
+  159:0000F1A1   160:0000F1A2   161:0000F1A3   162:0000F1A4   163:0000F1A7 
+  164:0000F1A9   165:0000F1AB   166:0000F1AD   167:0000F1AF   168:0000F1B1 
+  169:0000F1B4   170:0000F1B6   171:0000F1B9   172:0000F1BB   173:0000F1BD 
+  174:0000F1BF   175:0000F1C1   176:0000F1C3   179:0000F1C6   182:0000F1D6 
+  185:0000F1EB   188:0000F1ED   191:0000F1EF 
+File Z:\prj\homebrew\software\6802\monitor\../common\vec.asm
+    6:0000FFFA     7:0000FFFC     8:0000FFFE 
+File Z:\prj\homebrew\software\6802\monitor\../common\LED.asm
+   40:0000F000    41:0000F003    42:0000F005    43:0000F008    44:0000F00B 
+   45:0000F00D    46:0000F010    48:0000F011    48:0000F012    48:0000F015 
+   48:0000F017    48:0000F01A    48:0000F01B    49:0000F01C    49:0000F01D 
+   49:0000F020    49:0000F022    49:0000F025    49:0000F026    50:0000F027 
+   50:0000F028    50:0000F02B    50:0000F02D    50:0000F030    50:0000F031 
+   52:0000F032    52:0000F033    52:0000F036    52:0000F038    52:0000F03B 
+   52:0000F03C    53:0000F03D    53:0000F03E    53:0000F041    53:0000F043 
+   53:0000F046    53:0000F047    54:0000F048    54:0000F049    54:0000F04C 
+   54:0000F04E    54:0000F051    54:0000F052    56:0000F053    56:0000F054 
+   56:0000F057    56:0000F059    56:0000F05C    56:0000F05D    57:0000F05E 
+   57:0000F05F    57:0000F062    57:0000F064    57:0000F067    57:0000F068 
+   58:0000F069    58:0000F06A    58:0000F06D    58:0000F06F    58:0000F072 
+   58:0000F073 
+File Z:\prj\homebrew\software\6802\monitor\../common\uart.asm
+   24:0000F074    25:0000F076    26:0000F079    27:0000F07C    28:0000F07E 
+   29:0000F081    30:0000F083    31:0000F086    32:0000F089    33:0000F08B 
+   34:0000F08D    37:0000F090    38:0000F093    39:0000F095    40:0000F097 
+   41:0000F09A    42:0000F09B    43:0000F09D    44:0000F0A0    46:0000F0A2 
+   50:0000F0A3    52:0000F0A4    53:0000F0A7    54:0000F0A9    55:0000F0AB 
+   56:0000F0AC    57:0000F0AF    58:0000F0B1    59:0000F0B4    60:0000F0B7 
+   61:0000F0B9    62:0000F0BC    63:0000F0BE    64:0000F0C1    65:0000F0C3 
+   66:0000F0C6    70:0000F0C7    71:0000F0CA    72:0000F0CC    73:0000F0CE 
+   74:0000F0D1    75:0000F0D4    76:0000F0D6    77:0000F0D9    78:0000F0DA 
+   80:0000F0DB    81:0000F0DC 
+
+Symbols in Segment NOTHING
+ADDRH                                 Int    0                         -1  1 0
+ADDRL                                 Int    1                         -1  1 0
+ARCHITECTURE                          String i386-unknown-win32        -1  0 1
+CASESENSITIVE                         Int    0                         -1  0 1
+COMPMODE                              Int    0                         -1  0 1
+CONSTPI                               Float  3.141592653589793         -1  0 1
+DATE                                  String 1/3/2023                  -1  0 1
+FALSE                                 Int    0                         -1  0 1
+FT240_NOSTB                           Int    E                         -1  1 0
+FT240_RDSTB                           Int    C                         -1  1 0
+FT240_RXF                             Int    80                        -1  1 0
+FT240_SIWU                            Int    20                        -1  1 0
+FT240_TXE                             Int    40                        -1  1 0
+FT240_WRMSK                           Int    1                         -1  1 0
+FULLPMMU                              Int    1                         -1  0 1
+HAS64                                 Int    0                         -1  0 1
+HASFPU                                Int    0                         -1  0 1
+HASPMMU                               Int    0                         -1  0 1
+INSUPMODE                             Int    0                         -1  0 1
+LED_BLUE                              Int    2                         -1  1 0
+LED_GREEN                             Int    8                         -1  1 0
+LED_RED                               Int    4                         -1  1 0
+LISTON                                Int    1                         -1  0 1
+MACEXP                                Int    7                         -1  0 1
+MOMCPU                                Int    6800                      -1  0 1
+MOMCPUNAME                            String 6800                      -1  0 1
+NESTMAX                               Int    100                       -1  0 1
+PADDING                               Int    0                         -1  0 1
+PIA_ACR                               Int    20B                       -1  0 0
+PIA_BASE                              Int    200                       -1  1 0
+PIA_DDRA                              Int    203                       -1  1 0
+PIA_DDRB                              Int    202                       -1  1 0
+PIA_IN                                Int    0                         -1  1 0
+PIA_OUT                               Int    FF                        -1  1 0
+PIA_PCR                               Int    20C                       -1  1 0
+PIA_PORTA                             Int    201                       -1  1 0
+PIA_PORTB                             Int    200                       -1  1 0
+PTRH                                  Int    4                         -1  1 0
+PTRL                                  Int    5                         -1  1 0
+RELAXED                               Int    1                         -1  0 1
+TIME                                  String 19:27:0                   -1  0 1
+TRUE                                  Int    1                         -1  0 1
+USERH                                 Int    2                         -1  1 0
+USERL                                 Int    3                         -1  1 0
+VERSION                               Int    142F                      -1  0 1
+
+Symbols in Segment CODE
+DOINC                                 Int    F145                      -1  1 0
+FT240_FLUSH                           Int    F090                      -1  1 0
+FT240_INIT                            Int    F074                      -1  1 0
+GETCHAR                               Int    F0C7                      -1  1 0
+GOTHEX                                Int    F187                      -1  1 0
+HEXCHARS                              Int    F1C6                      -1  1 0
+INFOCMD                               Int    F0F0                      -1  1 0
+INFOSTR                               Int    F1D6                      -1  1 0
+INITMON                               Int    F0E6                      -1  0 0
+IRQ                                   Int    F1EB                      -1  1 0
+LED_BLUE_OFF                          Int    F05E                      -1  0 0
+LED_BLUE_ON                           Int    F053                      -1  0 0
+LED_BLUE_TOGGLE                       Int    F069                      -1  0 0
+LED_GREEN_OFF                         Int    F03D                      -1  0 0
+LED_GREEN_ON                          Int    F032                      -1  0 0
+LED_GREEN_TOGGLE                      Int    F048                      -1  0 0
+LED_INIT                              Int    F000                      -1  1 0
+LED_RED_OFF                           Int    F01C                      -1  1 0
+LED_RED_ON                            Int    F011                      -1  1 0
+LED_RED_TOGGLE                        Int    F027                      -1  0 0
+LOOP53                                Int    F0F3                      -1  1 0
+NEXTCHAR                              Int    F120                      -1  1 0
+NMI                                   Int    F1EF                      -1  1 0
+NOCHAR42                              Int    F0A2                      -1  1 0
+NOCHAR44                              Int    F0DB                      -1  1 0
+NOTADDR                               Int    F175                      -1  1 0
+NOTDEC                                Int    F157                      -1  1 0
+NOTGO                                 Int    F165                      -1  1 0
+NOTINC                                Int    F14C                      -1  1 0
+NOTWRITE                              Int    F141                      -1  1 0
+PARSEHEX                              Int    F175                      -1  0 0
+PARSELOOP                             Int    F17C                      -1  1 0
+PROMPT                                Int    F0FD                      -1  1 0
+PUTCHAR                               Int    F0A3                      -1  1 0
+PUTHEX                                Int    F19F                      -1  1 0
+PUTWAIT43                             Int    F0A4                      -1  1 0
+RESET                                 Int    F0DD                      -1  1 0
+SWI                                   Int    F1ED                      -1  1 0

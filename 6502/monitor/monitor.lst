@@ -1,0 +1,721 @@
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 1 - 1/3/2023 19:24:55
+
+
+       1/       0 :                         CPU     6502
+       2/       0 :                     
+       3/       0 :                         include "vec.asm"
+(1)    1/       0 :                         CPU     6502
+(1)    2/       0 :                     
+(1)    3/       0 :                     ; Vector table
+(1)    4/    FFFA :                         ORG    $FFFA
+(1)    5/    FFFA : E3 F1                   ADR     nmi
+(1)    6/    FFFC : DC F0                   ADR     reset
+(1)    7/    FFFE : E6 F1                   ADR     irqBrk
+(1)    8/   10000 :                     
+       4/   10000 :                     
+       5/    F000 :                         ORG     $F000
+       6/    F000 :                         include "LED.asm"
+(1)    1/    F000 :                         CPU     6502
+(1)    2/    F000 :                         
+(1)    3/    F000 :                     ; PIA already defined in uart.asm
+(1)    4/    F000 :                     
+(1)    5/    F000 : =$4                  LED_RED     EQU     $04
+(1)    6/    F000 : =$8                  LED_GREEN   EQU     $08
+(1)    7/    F000 : =$2                  LED_BLUE    EQU     $02
+(1)    8/    F000 :                     
+(1)    9/    F000 :                     ledon   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   10/    F000 :                     LED_name_On:
+(1)   11/    F000 :                         pha
+(1)   12/    F000 :                         lda     PIA_PORTB
+(1)   13/    F000 :                         ora     #bitName
+(1)   14/    F000 :                         sta     PIA_PORTB
+(1)   15/    F000 :                         pla
+(1)   16/    F000 :                         rts
+(1)   17/    F000 :                         endm
+(1)   18/    F000 :                         
+(1)   19/    F000 :                     ledoff   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   20/    F000 :                     LED_name_Off:
+(1)   21/    F000 :                         pha
+(1)   22/    F000 :                         lda     PIA_PORTB
+(1)   23/    F000 :                         and     #(~bitName) & 255
+(1)   24/    F000 :                         sta     PIA_PORTB
+(1)   25/    F000 :                         pla
+(1)   26/    F000 :                         rts
+(1)   27/    F000 :                         endm
+(1)   28/    F000 :                     
+(1)   29/    F000 :                     ledtoggle   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   30/    F000 :                     LED_name_Toggle:
+(1)   31/    F000 :                         pha
+(1)   32/    F000 :                         lda     PIA_PORTB
+(1)   33/    F000 :                         eor     #bitName
+(1)   34/    F000 :                         sta     PIA_PORTB
+(1)   35/    F000 :                         pla
+(1)   36/    F000 :                         rts
+(1)   37/    F000 :                         endm
+(1)   38/    F000 :                     
+(1)   39/    F000 :                     
+(1)   40/    F000 :                     LED_init:
+(1)   41/    F000 : AD 00 02                lda     PIA_PORTB
+(1)   42/    F003 : 29 F1                   and     #(~(LED_RED | LED_GREEN | LED_BLUE)) & 255
+(1)   43/    F005 : 8D 00 02                sta     PIA_PORTB
+(1)   44/    F008 : AD 02 02                lda     PIA_DDRB
+(1)   45/    F00B : 09 0E                   ora     #(LED_RED | LED_GREEN | LED_BLUE) & 255
+(1)   46/    F00D : 8D 02 02                sta     PIA_DDRB
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm(LED.asm) - Page 2 - 1/3/2023 19:24:55
+
+
+(1)   47/    F010 : 60                      rts
+(1)   48/    F011 :                     
+(1)   49/    F011 : (MACRO)                  ledon       Red,LED_RED
+(1)   49/    F011 :                     LED_RED_On:
+(1)   49/    F011 : 48                      pha
+(1)   49/    F012 : AD 00 02                lda     PIA_PORTB
+(1)   49/    F015 : 09 04                   ora     #LED_RED
+(1)   49/    F017 : 8D 00 02                sta     PIA_PORTB
+(1)   49/    F01A : 68                      pla
+(1)   49/    F01B : 60                      rts
+(1)   50/    F01C : (MACRO)                  ledoff      Red,LED_RED
+(1)   50/    F01C :                     LED_RED_Off:
+(1)   50/    F01C : 48                      pha
+(1)   50/    F01D : AD 00 02                lda     PIA_PORTB
+(1)   50/    F020 : 29 FB                   and     #(~LED_RED) & 255
+(1)   50/    F022 : 8D 00 02                sta     PIA_PORTB
+(1)   50/    F025 : 68                      pla
+(1)   50/    F026 : 60                      rts
+(1)   51/    F027 : (MACRO)                  ledtoggle   Red,LED_RED
+(1)   51/    F027 :                     LED_RED_Toggle:
+(1)   51/    F027 : 48                      pha
+(1)   51/    F028 : AD 00 02                lda     PIA_PORTB
+(1)   51/    F02B : 49 04                   eor     #LED_RED
+(1)   51/    F02D : 8D 00 02                sta     PIA_PORTB
+(1)   51/    F030 : 68                      pla
+(1)   51/    F031 : 60                      rts
+(1)   52/    F032 :                         
+(1)   53/    F032 : (MACRO)                  ledon       Green,LED_GREEN
+(1)   53/    F032 :                     LED_GREEN_On:
+(1)   53/    F032 : 48                      pha
+(1)   53/    F033 : AD 00 02                lda     PIA_PORTB
+(1)   53/    F036 : 09 08                   ora     #LED_GREEN
+(1)   53/    F038 : 8D 00 02                sta     PIA_PORTB
+(1)   53/    F03B : 68                      pla
+(1)   53/    F03C : 60                      rts
+(1)   54/    F03D : (MACRO)                  ledoff      Green,LED_GREEN
+(1)   54/    F03D :                     LED_GREEN_Off:
+(1)   54/    F03D : 48                      pha
+(1)   54/    F03E : AD 00 02                lda     PIA_PORTB
+(1)   54/    F041 : 29 F7                   and     #(~LED_GREEN) & 255
+(1)   54/    F043 : 8D 00 02                sta     PIA_PORTB
+(1)   54/    F046 : 68                      pla
+(1)   54/    F047 : 60                      rts
+(1)   55/    F048 : (MACRO)                  ledtoggle   Green,LED_GREEN
+(1)   55/    F048 :                     LED_GREEN_Toggle:
+(1)   55/    F048 : 48                      pha
+(1)   55/    F049 : AD 00 02                lda     PIA_PORTB
+(1)   55/    F04C : 49 08                   eor     #LED_GREEN
+(1)   55/    F04E : 8D 00 02                sta     PIA_PORTB
+(1)   55/    F051 : 68                      pla
+(1)   55/    F052 : 60                      rts
+(1)   56/    F053 :                     
+(1)   57/    F053 : (MACRO)                  ledon       Blue,LED_BLUE
+(1)   57/    F053 :                     LED_BLUE_On:
+(1)   57/    F053 : 48                      pha
+(1)   57/    F054 : AD 00 02                lda     PIA_PORTB
+(1)   57/    F057 : 09 02                   ora     #LED_BLUE
+(1)   57/    F059 : 8D 00 02                sta     PIA_PORTB
+(1)   57/    F05C : 68                      pla
+(1)   57/    F05D : 60                      rts
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm(LED.asm) - Page 3 - 1/3/2023 19:24:55
+
+
+(1)   58/    F05E : (MACRO)                  ledoff      Blue,LED_BLUE
+(1)   58/    F05E :                     LED_BLUE_Off:
+(1)   58/    F05E : 48                      pha
+(1)   58/    F05F : AD 00 02                lda     PIA_PORTB
+(1)   58/    F062 : 29 FD                   and     #(~LED_BLUE) & 255
+(1)   58/    F064 : 8D 00 02                sta     PIA_PORTB
+(1)   58/    F067 : 68                      pla
+(1)   58/    F068 : 60                      rts
+(1)   59/    F069 : (MACRO)                  ledtoggle   Blue,LED_BLUE  
+(1)   59/    F069 :                     LED_BLUE_Toggle:
+(1)   59/    F069 : 48                      pha
+(1)   59/    F06A : AD 00 02                lda     PIA_PORTB
+(1)   59/    F06D : 49 02                   eor     #LED_BLUE
+(1)   59/    F06F : 8D 00 02                sta     PIA_PORTB
+(1)   59/    F072 : 68                      pla
+(1)   59/    F073 : 60                      rts
+(1)   60/    F074 :                     
+       7/    F074 :                         include "uart.asm"
+(1)    1/    F074 :                         CPU     6502
+(1)    2/    F074 :                     
+(1)    3/    F074 : =$200                PIA_BASE    EQU     $0200
+(1)    4/    F074 : =$200                PIA_PORTB   EQU     PIA_BASE + $0
+(1)    5/    F074 : =$201                PIA_PORTA   EQU     PIA_BASE + $1
+(1)    6/    F074 : =$202                PIA_DDRB    EQU     PIA_BASE + $2
+(1)    7/    F074 : =$203                PIA_DDRA    EQU     PIA_BASE + $3
+(1)    8/    F074 : =$20B                PIA_ACR     EQU     PIA_BASE + $B
+(1)    9/    F074 : =$20C                PIA_PCR     EQU     PIA_BASE + $C
+(1)   10/    F074 :                         
+(1)   11/    F074 : =$0                  PIA_IN      EQU     $00
+(1)   12/    F074 : =$FF                 PIA_OUT     EQU     $FF
+(1)   13/    F074 :                     
+(1)   14/    F074 : =$1                  FT240_WRMSK EQU     $01     ; WR on bit-0, pulse high to write to the FIFO
+(1)   15/    F074 : =$20                 FT240_SIWU  EQU     $20     ; SIWU on bit 5, always high
+(1)   16/    F074 : =$E                  FT240_NOSTB EQU     $0E     ; RD# = 1, irqs disabled 
+(1)   17/    F074 : =$C                  FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled (used to read from the FIFO)
+(1)   18/    F074 : =$40                 FT240_TXE   EQU     $40     ; TXE# on bit 6 (FIFO can accept data when low)
+(1)   19/    F074 : =$80                 FT240_RXF   EQU     $80     ; RXF# on bit 7 (FIFO has data when low)
+(1)   20/    F074 :                     
+(1)   21/    F074 :                     ; Initialize the VIA to operate iwth the FT240, which is use for console IO.
+(1)   22/    F074 :                     FT240_init:
+(1)   23/    F074 : A9 0E                   lda     #FT240_NOSTB    ; RD# = 1
+(1)   24/    F076 : 8D 0C 02                sta     PIA_PCR
+(1)   25/    F079 : AD 00 02                lda     PIA_PORTB
+(1)   26/    F07C : 29 FE                   and     #~FT240_WRMSK   ; WR = 0, don't touch the other bits
+(1)   27/    F07E : 09 20                   ora     #FT240_SIWU     ; SIWU = 1, dont' tough the other bits
+(1)   28/    F080 : 8D 00 02                sta     PIA_PORTB
+(1)   29/    F083 : A9 00                   lda     #PIA_IN         ; data port input, its only output when writing to FT240
+(1)   30/    F085 : 8D 03 02                sta     PIA_DDRA
+(1)   31/    F088 : AD 02 02                lda     PIA_DDRB        ; control ports bits for FT240, don't touch other bits
+(1)   32/    F08B : 09 21                   ora     #(FT240_WRMSK | FT240_SIWU) & $FF   ; Ouptut pins
+(1)   33/    F08D : 29 3F                   and     #(~(FT240_RXF | FT240_TXE)) & $FF   ; Input pins
+(1)   34/    F08F : 8D 02 02                sta     PIA_DDRB
+(1)   35/    F092 :                     
+(1)   36/    F092 :                     FT240_Flush:
+(1)   37/    F092 : 2C 00 02                bit     PIA_PORTB       ; Test RXF# (bit-7)
+(1)   38/    F095 : 30 0E                   bmi     $$NoChar        ; Branch when RXF# is set, no data in FIFO
+(1)   39/    F097 : A9 0C                   lda     #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   40/    F099 : 8D 0C 02                sta     PIA_PCR
+(1)   41/    F09C : EA                      nop
+(1)   42/    F09D : A9 0E                   lda     #FT240_NOSTB    ; FT240 RD# = 1
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm(uart.asm) - Page 4 - 1/3/2023 19:24:55
+
+
+(1)   43/    F09F : 8D 0C 02                sta     PIA_PCR
+(1)   44/    F0A2 : 4C 92 F0                jmp     FT240_Flush
+(1)   45/    F0A5 :                     $$NoChar:
+(1)   46/    F0A5 : 60                      rts
+(1)   47/    F0A6 :                     
+(1)   48/    F0A6 :                     ; Output the value in the acc to the console    
+(1)   49/    F0A6 :                     PutChar:
+(1)   50/    F0A6 : 2C 00 02                bit     PIA_PORTB       ; Test TXE (bit-6)
+(1)   51/    F0A9 : 70 FB                   bvs     PutChar         ; When set the FIFO is full, keep polling until there is room
+(1)   52/    F0AB : 8D 01 02                sta     PIA_PORTA       ; Write data to port
+(1)   53/    F0AE : A9 FF                   lda     #PIA_OUT        ; Set data port direction to output
+(1)   54/    F0B0 : 8D 03 02                sta     PIA_DDRA
+(1)   55/    F0B3 : AD 00 02                lda     PIA_PORTB       ; FT240 WR = 1 (don't touch other bits)
+(1)   56/    F0B6 : 09 01                   ora     #FT240_WRMSK
+(1)   57/    F0B8 : 8D 00 02                sta     PIA_PORTB
+(1)   58/    F0BB : 29 FE                   and     #~FT240_WRMSK   ; FT240 WR = 0
+(1)   59/    F0BD : 8D 00 02                sta     PIA_PORTB
+(1)   60/    F0C0 : A9 00                   lda     #PIA_IN         ; Set data port direction to input
+(1)   61/    F0C2 : 8D 03 02                sta     PIA_DDRA
+(1)   62/    F0C5 : 60                      rts
+(1)   63/    F0C6 :                     
+(1)   64/    F0C6 :                     ; Read a character from the console in the acc, C == 1 indicates a character was read
+(1)   65/    F0C6 :                     GetChar:
+(1)   66/    F0C6 : 2C 00 02                bit     PIA_PORTB       ; Test RXF# (bit-7)
+(1)   67/    F0C9 : 30 0F                   bmi     $$NoChar          ; Branch when RXF# is set, no data in FIFO
+(1)   68/    F0CB : A2 0C                   ldx     #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   69/    F0CD : 8E 0C 02                stx     PIA_PCR
+(1)   70/    F0D0 : AD 01 02                lda     PIA_PORTA       ; Read data byte from FT240 (assumes DDR in input)
+(1)   71/    F0D3 : A2 0E                   ldx     #FT240_NOSTB    ; FT240 RD# = 1
+(1)   72/    F0D5 : 8E 0C 02                stx     PIA_PCR
+(1)   73/    F0D8 : 38                      sec                     ; Set carry to indicate we read a data byte
+(1)   74/    F0D9 : 60                      rts
+(1)   75/    F0DA :                     $$NoChar:
+(1)   76/    F0DA : 18                      clc                     ; Clear carry to indicate there was nothing to read
+(1)   77/    F0DB : 60                      rts
+       8/    F0DC :                     
+       9/    F0DC :                     ; Simple monitor:
+      10/    F0DC :                     ; Prompt messsage is:
+      11/    F0DC :                     ; 
+      12/    F0DC :                     ; aaaa bb>
+      13/    F0DC :                     ; 
+      14/    F0DC :                     ; Where aaaa is the current addess and bb is the current value at that address.
+      15/    F0DC :                     ;
+      16/    F0DC :                     ; Commands:
+      17/    F0DC :                     ; ?     Show the info message
+      18/    F0DC :                     ; =     Re-read the current address
+      19/    F0DC :                     ; <lf>  Write to current address and increment address
+      20/    F0DC :                     ; +     Increment current address
+      21/    F0DC :                     ; -     Decrement current address
+      22/    F0DC :                     ; g     Go to current address
+      23/    F0DC :                     ; <sp>  Set current address   
+      24/    F0DC :                     
+      25/    F0DC :                     ; Zero page address
+      26/    F0DC : =$0                  addrL       EQU     $00
+      27/    F0DC : =$1                  addrH       EQU     $01
+      28/    F0DC : =$2                  userL       EQU     $02
+      29/    F0DC : =$3                  userH       EQU     $03
+      30/    F0DC :                     
+      31/    F0DC :                     reset:
+      32/    F0DC : D8                      cld                     ; Make sure we are NOT is decimal mode
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 5 - 1/3/2023 19:24:55
+
+
+      33/    F0DD : A2 FF                   ldx     #$FF
+      34/    F0DF : 9A                      txs
+      35/    F0E0 : 20 74 F0                jsr     FT240_init
+      36/    F0E3 : 20 00 F0                jsr     LED_init
+      37/    F0E6 :                     
+      38/    F0E6 :                     InitMon:
+      39/    F0E6 : A9 00                   lda     #$00            ; Clear monitor state
+      40/    F0E8 : 85 00                   sta     addrL           
+      41/    F0EA : 85 01                   sta     addrH
+      42/    F0EC : 85 02                   sta     userL
+      43/    F0EE : 85 03                   sta     userH
+      44/    F0F0 :                         
+      45/    F0F0 :                     InfoCmd:
+      46/    F0F0 : A2 00                   ldx     #$00
+      47/    F0F2 :                     $$loop
+      48/    F0F2 : BD CE F1                lda     InfoStr,x
+      49/    F0F5 : F0 07                   beq     Prompt     
+      50/    F0F7 : 20 A6 F0                jsr     PutChar
+      51/    F0FA : E8                      inx
+      52/    F0FB : 4C F2 F0                jmp     $$loop
+      53/    F0FE :                     
+      54/    F0FE :                     Prompt:
+      55/    F0FE : 20 1C F0                jsr     LED_RED_Off
+      56/    F101 : A9 0A                   lda     #$0a            ; Show Prompt
+      57/    F103 : 20 A6 F0                jsr     PutChar
+      58/    F106 : A5 01                   lda     addrH           ; Show high address
+      59/    F108 : 20 A8 F1                jsr     PutHex
+      60/    F10B : A5 00                   lda     addrL           ; Show low address
+      61/    F10D : 20 A8 F1                jsr     PutHex
+      62/    F110 : A9 20                   lda     #' '            ; Space to seperate address and data
+      63/    F112 : 20 A6 F0                jsr     PutChar
+      64/    F115 : A0 00                   ldy     #$00
+      65/    F117 : B1 00                   lda     (addrL),y       ; Show data at address
+      66/    F119 : 20 A8 F1                jsr     PutHex
+      67/    F11C : A9 3E                   lda     #'>'            ; Show Prompt
+      68/    F11E : 20 A6 F0                jsr     PutChar
+      69/    F121 :                      NextChar:   
+      70/    F121 : 20 C6 F0                jsr     GetChar         ; get char from user
+      71/    F124 : 90 FB                   bcc     NextChar        ; Got a char? Keep polling until we get a char
+      72/    F126 : 20 11 F0                jsr     LED_RED_On
+      73/    F129 : AA                      tax
+      74/    F12A : 20 A6 F0                jsr     PutChar         ; Should we echo the character?????
+      75/    F12D : 8A                      txa
+      76/    F12E : C9 3F                   cmp     #'?'            ; Show info?
+      77/    F130 : F0 BE                   beq     InfoCmd
+      78/    F132 : C9 3D                   cmp     #'='            ; re-read address?
+      79/    F134 : F0 C8                   beq     Prompt
+      80/    F136 : C9 0A                   cmp     #$0a            ; Write data byte?
+      81/    F138 : D0 09                   bne     NotWrite
+      82/    F13A : A5 02                   lda     userL           ; Get the last 8-bit value entered
+      83/    F13C : A0 00                   ldy     #$00
+      84/    F13E : 91 00                   sta     (addrL),y       ; Store at the current address
+      85/    F140 : 4C 47 F1                jmp     DoInc           ; Increment the current address
+      86/    F143 :                     
+      87/    F143 :                     NotWrite:
+      88/    F143 : C9 2B                   cmp     #'+'            ; Incement address?
+      89/    F145 : D0 09                   bne     NotInc
+      90/    F147 :                     DoInc:
+      91/    F147 : E6 00                   inc     addrL           ; TODO test this logic: 03FF -> 0400 -> 0401; FFFF -> 0000
+      92/    F149 : D0 B3                   bne     Prompt
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 6 - 1/3/2023 19:24:55
+
+
+      93/    F14B : E6 01                   inc     addrH
+      94/    F14D : 4C FE F0                jmp     Prompt
+      95/    F150 :                     
+      96/    F150 :                     NotInc:
+      97/    F150 : C9 2D                   cmp     #'-'            ; Decrement address?
+      98/    F152 : D0 0B                   bne     NotDec
+      99/    F154 : A5 00                   lda     addrL
+     100/    F156 : D0 02                   bne     $$NoMSB
+     101/    F158 : C6 01                   dec     addrH
+     102/    F15A :                     $$NoMSB:
+     103/    F15A : C6 00                   dec     addrL
+     104/    F15C : 4C FE F0                jmp     Prompt
+     105/    F15F :                     
+     106/    F15F :                     NotDec:
+     107/    F15F : C9 67                   cmp     #'g'            ; go to address?
+     108/    F161 : D0 09                   bne     NotGo
+     109/    F163 : A9 F0                   lda     #(reset-1)>>8   ; push the return address onto the stack
+     110/    F165 : 48                      pha
+     111/    F166 : A9 DB                   lda     #(reset-1)&$FF
+     112/    F168 : 48                      pha
+     113/    F169 : 6C 00 00                jmp     (addrL)
+     114/    F16C :                     
+     115/    F16C :                     NotGo:
+     116/    F16C : C9 20                   cmp     #' '            ; set current address?
+     117/    F16E : D0 11                   bne     NotAddr
+     118/    F170 : A5 02                   lda     userL           ; move the user value to the current address
+     119/    F172 : 85 00                   sta     addrL
+     120/    F174 : A5 03                   lda     userH
+     121/    F176 : 85 01                   sta     addrH
+     122/    F178 : A9 00                   lda     #$00            ; clear user value
+     123/    F17A : 85 02                   sta     userL
+     124/    F17C : 85 03                   sta     userH
+     125/    F17E : 4C FE F0                jmp     Prompt          ; Continue with the new address 
+     126/    F181 :                     
+     127/    F181 :                     NotAddr:
+     128/    F181 :                     ParseHex:
+     129/    F181 :                         ; Process hex digit [0..9][A..F][a..f]
+     130/    F181 : 09 20                   ora     #$20            ; Force to lower
+     131/    F183 : A2 0F                   ldx     #$0F            ; initialize index
+     132/    F185 :                     ParseLoop:
+     133/    F185 : DD BE F1                cmp     HexChars,x      ; Is it this digit?
+     134/    F188 : F0 06                   beq     GotHex          ; Yes, process the nibble value
+     135/    F18A : CA                      dex                     ; No, advance index
+     136/    F18B : 10 F8                   bpl     ParseLoop       ; Keep checking until index underflows
+     137/    F18D : 4C FE F0                jmp     Prompt          ; Index underflowed, not a hex digit- abort
+     138/    F190 :                     GotHex:
+     139/    F190 : 06 02                   asl     userL           ; Shift the user value to the left by 4 bits
+     140/    F192 : 26 03                   rol     userH
+     141/    F194 : 06 02                   asl     userL
+     142/    F196 : 26 03                   rol     userH
+     143/    F198 : 06 02                   asl     userL
+     144/    F19A : 26 03                   rol     userH
+     145/    F19C : 06 02                   asl     userL
+     146/    F19E : 26 03                   rol     userH
+     147/    F1A0 : 8A                      txa                     ; Get the nibble value
+     148/    F1A1 : 05 02                   ora     userL           ; Insert the nibble into the user value
+     149/    F1A3 : 85 02                   sta     userL
+     150/    F1A5 : 4C 21 F1                jmp     NextChar        ; Done, get next char    
+     151/    F1A8 :                         
+     152/    F1A8 :                     ; Output the value in acc to the console as two hex bytes
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 7 - 1/3/2023 19:24:55
+
+
+     153/    F1A8 :                     PutHex:
+     154/    F1A8 : A8                      tay                         ; save value
+     155/    F1A9 : 4A                      lsr                         ; move high nibble to low
+     156/    F1AA : 4A                      lsr
+     157/    F1AB : 4A                      lsr
+     158/    F1AC : 4A                      lsr
+     159/    F1AD : AA                      tax
+     160/    F1AE : BD BE F1                lda     HexChars,X          ; lookup hex digit 
+     161/    F1B1 : 20 A6 F0                jsr     PutChar
+     162/    F1B4 : 98                      tya                         ; get value back
+     163/    F1B5 : 29 0F                   and     #$0f                ; mask high nibble away
+     164/    F1B7 : AA                      tax
+     165/    F1B8 : BD BE F1                lda     HexChars,X          ; lookup hex digit 
+     166/    F1BB : 4C A6 F0                jmp     PutChar
+     167/    F1BE :                     
+     168/    F1BE :                     HexChars:
+     169/    F1BE : 30 31 32 33 34 35       FCB     "0123456789abcdef"
+             F1C4 : 36 37 38 39 61 62 
+             F1CA : 63 64 65 66       
+     170/    F1CE :                         
+     171/    F1CE :                     InfoStr:
+     172/    F1CE : 0A 4D 69 6E 69 4D       FCB     10,"MiniMon,0.1,6502,0",10,0
+             F1D4 : 6F 6E 2C 30 2E 31 
+             F1DA : 2C 36 35 30 32 2C 
+             F1E0 : 30 0A 00          
+     173/    F1E3 :                        
+     174/    F1E3 :                     nmi:
+     175/    F1E3 : 4C E3 F1                jmp     nmi
+     176/    F1E6 :                     
+     177/    F1E6 :                     irqBrk:
+     178/    F1E6 : 4C E6 F1                jmp     irqBrk
+     179/    F1E9 :                     
+     180/    F1E9 :                         
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 8 - 1/3/2023 19:24:55
+
+
+  Symbol Table (* = unused):
+  --------------------------
+
+ ADDRH :                          1 - |  ADDRL :                          0 - |
+*ARCHITECTURE :                                        "i386-unknown-win32" - |
+*CASESENSITIVE :                  0 - | *COMPMODE :                       0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                  "1/3/2023" - |
+ DOINC :                       F147 C | *FALSE :                          0 - |
+ FT240_FLUSH :                 F092 C |  FT240_INIT :                  F074 C |
+ FT240_NOSTB :                    E - |  FT240_RDSTB :                    C - |
+ FT240_RXF :                     80 - |  FT240_SIWU :                    20 - |
+ FT240_TXE :                     40 - |  FT240_WRMSK :                    1 - |
+*FULLPMMU :                       1 - |  GETCHAR :                     F0C6 C |
+ GOTHEX :                      F190 C | *HAS64 :                          0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+ HEXCHARS :                    F1BE C |  INFOCMD :                     F0F0 C |
+ INFOSTR :                     F1CE C | *INITMON :                     F0E6 C |
+*INSUPMODE :                      0 - |  IRQBRK :                      F1E6 C |
+ LED_BLUE :                       2 - | *LED_BLUE_OFF :                F05E C |
+*LED_BLUE_ON :                 F053 C | *LED_BLUE_TOGGLE :             F069 C |
+ LED_GREEN :                      8 - | *LED_GREEN_OFF :               F03D C |
+*LED_GREEN_ON :                F032 C | *LED_GREEN_TOGGLE :            F048 C |
+ LED_INIT :                    F000 C |  LED_RED :                        4 - |
+ LED_RED_OFF :                 F01C C |  LED_RED_ON :                  F011 C |
+*LED_RED_TOGGLE :              F027 C | *LISTON :                         1 - |
+ LOOP47 :                      F0F2 C | *MACEXP :                         7 - |
+*MOMCPU :                      6502 - | *MOMCPUNAME :                "6502" - |
+*NESTMAX :                      100 - |  NEXTCHAR :                    F121 C |
+ NMI :                         F1E3 C |  NOCHAR38 :                    F0A5 C |
+ NOCHAR40 :                    F0DA C |  NOMSB52 :                     F15A C |
+ NOTADDR :                     F181 C |  NOTDEC :                      F15F C |
+ NOTGO :                       F16C C |  NOTINC :                      F150 C |
+ NOTWRITE :                    F143 C | *PADDING :                        1 - |
+*PARSEHEX :                    F181 C |  PARSELOOP :                   F185 C |
+*PIA_ACR :                      20B - |  PIA_BASE :                     200 - |
+ PIA_DDRA :                     203 - |  PIA_DDRB :                     202 - |
+ PIA_IN :                         0 - |  PIA_OUT :                       FF - |
+ PIA_PCR :                      20C - |  PIA_PORTA :                    201 - |
+ PIA_PORTB :                    200 - |  PROMPT :                      F0FE C |
+ PUTCHAR :                     F0A6 C |  PUTHEX :                      F1A8 C |
+*RELAXED :                        1 - |  RESET :                       F0DC C |
+*TIME :                  "19:24:55" - | *TRUE :                           1 - |
+ USERH :                          3 - |  USERL :                          2 - |
+*VERSION :                     142F - |
+
+     80 symbols
+     31 unused symbols
+
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 9 - 1/3/2023 19:24:55
+
+
+  Defined Macros:
+  ---------------
+
+LEDOFF                                | LEDON                                
+LEDTOGGLE                             |
+
+      3 macros
+
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 10 - 1/3/2023 19:24:55
+
+
+  Code Pages:
+  ----------
+
+STANDARD (0 changed characters)
+
+1 code page
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 11 - 1/3/2023 19:24:55
+
+
+
+  Cross Reference List:
+  ---------------------
+
+symbol ADDRH (=1, monitor.asm:27):
+ file monitor.asm :
+     41       58       93      101      121    
+
+symbol ADDRL (=0, monitor.asm:26):
+ file monitor.asm :
+     40       60       65       84       91       99      103      113    
+    119    
+
+symbol DOINC (=F147, monitor.asm:90):
+ file monitor.asm :
+     85    
+
+symbol FT240_FLUSH (=F092, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:36):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     44    
+
+symbol FT240_INIT (=F074, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:22):
+ file monitor.asm :
+     35    
+
+symbol FT240_NOSTB (=E, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:16):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     23       42       71    
+
+symbol FT240_RDSTB (=C, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:17):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     39       68    
+
+symbol FT240_RXF (=80, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:19):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     33    
+
+symbol FT240_SIWU (=20, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:15):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     27       32    
+
+symbol FT240_TXE (=40, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:18):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     33    
+
+symbol FT240_WRMSK (=1, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:14):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     26       32       56       58    
+
+symbol GETCHAR (=F0C6, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:65):
+ file monitor.asm :
+     70    
+
+symbol GOTHEX (=F190, monitor.asm:138):
+ file monitor.asm :
+    134    
+
+symbol HEXCHARS (=F1BE, monitor.asm:168):
+ file monitor.asm :
+    133      160      165    
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 12 - 1/3/2023 19:24:55
+
+
+
+symbol INFOCMD (=F0F0, monitor.asm:45):
+ file monitor.asm :
+     77    
+
+symbol INFOSTR (=F1CE, monitor.asm:171):
+ file monitor.asm :
+     48    
+
+symbol IRQBRK (=F1E6, monitor.asm:177):
+ file monitor.asm :
+    178    
+ file Z:\prj\homebrew\software\6502\monitor\../common\vec.asm :
+      7    
+
+symbol LED_BLUE (=2, Z:\prj\homebrew\software\6502\monitor\../common\LED.asm:7):
+ file Z:\prj\homebrew\software\6502\monitor\../common\LED.asm :
+     42       45       57       58       59    
+
+symbol LED_GREEN (=8, Z:\prj\homebrew\software\6502\monitor\../common\LED.asm:6):
+ file Z:\prj\homebrew\software\6502\monitor\../common\LED.asm :
+     42       45       53       54       55    
+
+symbol LED_INIT (=F000, Z:\prj\homebrew\software\6502\monitor\../common\LED.asm:40):
+ file monitor.asm :
+     36    
+
+symbol LED_RED (=4, Z:\prj\homebrew\software\6502\monitor\../common\LED.asm:5):
+ file Z:\prj\homebrew\software\6502\monitor\../common\LED.asm :
+     42       45       49       50       51    
+
+symbol LED_RED_OFF (=F01C, Z:\prj\homebrew\software\6502\monitor\../common\LED.asm:50):
+ file monitor.asm :
+     55    
+
+symbol LED_RED_ON (=F011, Z:\prj\homebrew\software\6502\monitor\../common\LED.asm:49):
+ file monitor.asm :
+     72    
+
+symbol LOOP47 (=F0F2, monitor.asm:47):
+ file monitor.asm :
+     52    
+
+symbol NEXTCHAR (=F121, monitor.asm:69):
+ file monitor.asm :
+     71      150    
+
+symbol NMI (=F1E3, monitor.asm:174):
+ file monitor.asm :
+    175    
+ file Z:\prj\homebrew\software\6502\monitor\../common\vec.asm :
+      5    
+
+symbol NOCHAR38 (=F0A5, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:45):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     38    
+
+symbol NOCHAR40 (=F0DA, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:75):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     67    
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 13 - 1/3/2023 19:24:55
+
+
+
+symbol NOMSB52 (=F15A, monitor.asm:102):
+ file monitor.asm :
+    100    
+
+symbol NOTADDR (=F181, monitor.asm:127):
+ file monitor.asm :
+    117    
+
+symbol NOTDEC (=F15F, monitor.asm:106):
+ file monitor.asm :
+     98    
+
+symbol NOTGO (=F16C, monitor.asm:115):
+ file monitor.asm :
+    108    
+
+symbol NOTINC (=F150, monitor.asm:96):
+ file monitor.asm :
+     89    
+
+symbol NOTWRITE (=F143, monitor.asm:87):
+ file monitor.asm :
+     81    
+
+symbol PARSELOOP (=F185, monitor.asm:132):
+ file monitor.asm :
+    136    
+
+symbol PIA_BASE (=200, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:3):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+      4        5        6        7        8        9    
+
+symbol PIA_DDRA (=203, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:7):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     30       54       61    
+
+symbol PIA_DDRB (=202, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:6):
+ file Z:\prj\homebrew\software\6502\monitor\../common\LED.asm :
+     44       46    
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     31       34    
+
+symbol PIA_IN (=0, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:11):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     29       60    
+
+symbol PIA_OUT (=FF, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:12):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     53    
+
+symbol PIA_PCR (=20C, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:9):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     24       40       43       69       72    
+
+symbol PIA_PORTA (=201, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:5):
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     52       70    
+
+symbol PIA_PORTB (=200, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:4):
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 14 - 1/3/2023 19:24:55
+
+
+ file Z:\prj\homebrew\software\6502\monitor\../common\LED.asm :
+     41       43       49( 2)   50( 2)   51( 2)   53( 2)   54( 2)   55( 2)
+     57( 2)   58( 2)   59( 2)
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     25       28       37       50       55       57       59       66    
+
+symbol PROMPT (=F0FE, monitor.asm:54):
+ file monitor.asm :
+     49       79       92       94      104      125      137    
+
+symbol PUTCHAR (=F0A6, Z:\prj\homebrew\software\6502\monitor\../common\uart.asm:49):
+ file monitor.asm :
+     50       57       63       68       74      161      166    
+ file Z:\prj\homebrew\software\6502\monitor\../common\uart.asm :
+     51    
+
+symbol PUTHEX (=F1A8, monitor.asm:153):
+ file monitor.asm :
+     59       61       66    
+
+symbol RESET (=F0DC, monitor.asm:31):
+ file monitor.asm :
+    109      111    
+ file Z:\prj\homebrew\software\6502\monitor\../common\vec.asm :
+      6    
+
+symbol USERH (=3, monitor.asm:29):
+ file monitor.asm :
+     43      120      124      140      142      144      146    
+
+symbol USERL (=2, monitor.asm:28):
+ file monitor.asm :
+     42       82      118      123      139      141      143      145    
+    148      149    
+
+
+
+0.03 seconds assembly time
+
+    325 lines source file
+    388 lines incl. macro expansions
+      2 passes
+      0 errors
+      0 warnings

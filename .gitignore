@@ -1,6 +1,1 @@
 **/*.p
-**/nppBackup/
-tester-host/target/debug
-tester-host/target/.rustc_info.json
-tester-host/target/CACHEDIR.TAG
-tester-host/Cargo.lock

@@ -1,0 +1,699 @@
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 1 - 1/3/2023 19:22:27
+
+
+       1/       0 :                         CPU     Z80
+       2/       0 :                         include "vec.asm"
+(1)    1/       0 :                         CPU     Z80
+(1)    2/       0 :                     
+(1)    3/       0 :                         ORG     $0000   ; Reset
+(1)    4/       0 : C3 43 01                jp      reset
+(1)    5/       3 :                     
+(1)    6/      38 :                         ORG     $0038   ; IRQ
+(1)    7/      38 :                      irq:
+(1)    8/      38 : C3 38 00                jp      irq
+(1)    9/      3B :                         
+(1)   10/      66 :                         ORG     $0066   ; NMI
+(1)   11/      66 :                      nmi:
+(1)   12/      66 : C3 66 00                jp      nmi
+(1)   13/      69 :                         
+(1)   14/      69 :                         
+(1)   15/      69 :                     
+       3/      69 :                     
+       4/      80 :                         ORG     $0080
+       5/      80 :                         include "LED.asm"
+(1)    1/      80 :                         CPU     Z80
+(1)    2/      80 :                         
+(1)    3/      80 :                     ; PIA already defined in uart.asm
+(1)    4/      80 :                     
+(1)    5/      80 : =4H                  LED_RED     EQU     $04
+(1)    6/      80 : =8H                  LED_GREEN   EQU     $08
+(1)    7/      80 : =2H                  LED_BLUE    EQU     $02
+(1)    8/      80 :                     
+(1)    9/      80 :                     ledon   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   10/      80 :                     LED_name_On:
+(1)   11/      80 :                         ex      af,af'
+(1)   12/      80 :                         in      a,PIA_PORTB
+(1)   13/      80 :                         or      LED_RED
+(1)   14/      80 :                         out     PIA_PORTB,a
+(1)   15/      80 :                         ex      af,af'
+(1)   16/      80 :                         ret
+(1)   17/      80 :                         endm
+(1)   18/      80 :                         
+(1)   19/      80 :                     ledoff   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   20/      80 :                     LED_name_Off:
+(1)   21/      80 :                         ex      af,af'
+(1)   22/      80 :                         in      a,PIA_PORTB
+(1)   23/      80 :                         and     (~LED_RED) & 255
+(1)   24/      80 :                         out     PIA_PORTB,a
+(1)   25/      80 :                         ex      af,af'
+(1)   26/      80 :                         ret
+(1)   27/      80 :                         endm
+(1)   28/      80 :                     
+(1)   29/      80 :                     ledtoggle   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   30/      80 :                     LED_name_Toggle:
+(1)   31/      80 :                         ex      af,af'
+(1)   32/      80 :                         in      a,PIA_PORTB
+(1)   33/      80 :                         xor     LED_RED
+(1)   34/      80 :                         out     PIA_PORTB,a
+(1)   35/      80 :                         ex      af,af'
+(1)   36/      80 :                         ret
+(1)   37/      80 :                         endm
+(1)   38/      80 :                     
+(1)   39/      80 :                     LED_init:
+(1)   40/      80 : DB 00                   in      a,PIA_PORTB
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm(LED.asm) - Page 2 - 1/3/2023 19:22:27
+
+
+(1)   41/      82 : E6 F1                   and     (~(LED_RED | LED_GREEN | LED_BLUE)) & 255
+(1)   42/      84 : D3 00                   out     PIA_PORTB,a
+(1)   43/      86 : DB 02                   in      a,PIA_DDRB
+(1)   44/      88 : F6 0E                   or      (LED_RED | LED_GREEN | LED_BLUE) & 255
+(1)   45/      8A : D3 02                   out     PIA_DDRB,a
+(1)   46/      8C : C9                      ret
+(1)   47/      8D :                     
+(1)   48/      8D : (MACRO)                  ledon       Red,LED_RED
+(1)   48/      8D :                     LED_RED_On:
+(1)   48/      8D : 08                      ex      af,af'
+(1)   48/      8E : DB 00                   in      a,PIA_PORTB
+(1)   48/      90 : F6 04                   or      LED_RED
+(1)   48/      92 : D3 00                   out     PIA_PORTB,a
+(1)   48/      94 : 08                      ex      af,af'
+(1)   48/      95 : C9                      ret
+(1)   49/      96 : (MACRO)                  ledoff      Red,LED_RED
+(1)   49/      96 :                     LED_RED_Off:
+(1)   49/      96 : 08                      ex      af,af'
+(1)   49/      97 : DB 00                   in      a,PIA_PORTB
+(1)   49/      99 : E6 FB                   and     (~LED_RED) & 255
+(1)   49/      9B : D3 00                   out     PIA_PORTB,a
+(1)   49/      9D : 08                      ex      af,af'
+(1)   49/      9E : C9                      ret
+(1)   50/      9F : (MACRO)                  ledtoggle   Red,LED_RED
+(1)   50/      9F :                     LED_RED_Toggle:
+(1)   50/      9F : 08                      ex      af,af'
+(1)   50/      A0 : DB 00                   in      a,PIA_PORTB
+(1)   50/      A2 : EE 04                   xor     LED_RED
+(1)   50/      A4 : D3 00                   out     PIA_PORTB,a
+(1)   50/      A6 : 08                      ex      af,af'
+(1)   50/      A7 : C9                      ret
+(1)   51/      A8 :                         
+(1)   52/      A8 : (MACRO)                  ledon       Green,LED_GREEN
+(1)   52/      A8 :                     LED_GREEN_On:
+(1)   52/      A8 : 08                      ex      af,af'
+(1)   52/      A9 : DB 00                   in      a,PIA_PORTB
+(1)   52/      AB : F6 04                   or      LED_RED
+(1)   52/      AD : D3 00                   out     PIA_PORTB,a
+(1)   52/      AF : 08                      ex      af,af'
+(1)   52/      B0 : C9                      ret
+(1)   53/      B1 : (MACRO)                  ledoff      Green,LED_GREEN
+(1)   53/      B1 :                     LED_GREEN_Off:
+(1)   53/      B1 : 08                      ex      af,af'
+(1)   53/      B2 : DB 00                   in      a,PIA_PORTB
+(1)   53/      B4 : E6 FB                   and     (~LED_RED) & 255
+(1)   53/      B6 : D3 00                   out     PIA_PORTB,a
+(1)   53/      B8 : 08                      ex      af,af'
+(1)   53/      B9 : C9                      ret
+(1)   54/      BA : (MACRO)                  ledtoggle   Green,LED_GREEN
+(1)   54/      BA :                     LED_GREEN_Toggle:
+(1)   54/      BA : 08                      ex      af,af'
+(1)   54/      BB : DB 00                   in      a,PIA_PORTB
+(1)   54/      BD : EE 04                   xor     LED_RED
+(1)   54/      BF : D3 00                   out     PIA_PORTB,a
+(1)   54/      C1 : 08                      ex      af,af'
+(1)   54/      C2 : C9                      ret
+(1)   55/      C3 :                     
+(1)   56/      C3 : (MACRO)                  ledon       Blue,LED_BLUE
+(1)   56/      C3 :                     LED_BLUE_On:
+(1)   56/      C3 : 08                      ex      af,af'
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm(LED.asm) - Page 3 - 1/3/2023 19:22:27
+
+
+(1)   56/      C4 : DB 00                   in      a,PIA_PORTB
+(1)   56/      C6 : F6 04                   or      LED_RED
+(1)   56/      C8 : D3 00                   out     PIA_PORTB,a
+(1)   56/      CA : 08                      ex      af,af'
+(1)   56/      CB : C9                      ret
+(1)   57/      CC : (MACRO)                  ledoff      Blue,LED_BLUE
+(1)   57/      CC :                     LED_BLUE_Off:
+(1)   57/      CC : 08                      ex      af,af'
+(1)   57/      CD : DB 00                   in      a,PIA_PORTB
+(1)   57/      CF : E6 FB                   and     (~LED_RED) & 255
+(1)   57/      D1 : D3 00                   out     PIA_PORTB,a
+(1)   57/      D3 : 08                      ex      af,af'
+(1)   57/      D4 : C9                      ret
+(1)   58/      D5 : (MACRO)                  ledtoggle   Blue,LED_BLUE
+(1)   58/      D5 :                     LED_BLUE_Toggle:
+(1)   58/      D5 : 08                      ex      af,af'
+(1)   58/      D6 : DB 00                   in      a,PIA_PORTB
+(1)   58/      D8 : EE 04                   xor     LED_RED
+(1)   58/      DA : D3 00                   out     PIA_PORTB,a
+(1)   58/      DC : 08                      ex      af,af'
+(1)   58/      DD : C9                      ret
+(1)   59/      DE :                     
+(1)   60/      DE :                         
+(1)   61/      DE :                         
+(1)   62/      DE :                     
+       6/      DE :                         include "uart.asm"
+(1)    1/      DE :                         CPU     Z80
+(1)    2/      DE :                     
+(1)    3/      DE : =0H                  PIA_BASE    EQU     $00
+(1)    4/      DE : =0H                  PIA_PORTB   EQU     PIA_BASE + $0
+(1)    5/      DE : =1H                  PIA_PORTA   EQU     PIA_BASE + $1
+(1)    6/      DE : =2H                  PIA_DDRB    EQU     PIA_BASE + $2
+(1)    7/      DE : =3H                  PIA_DDRA    EQU     PIA_BASE + $3
+(1)    8/      DE : =0BH                 PIA_ACR     EQU     PIA_BASE + $B
+(1)    9/      DE : =0CH                 PIA_PCR     EQU     PIA_BASE + $C
+(1)   10/      DE :                         
+(1)   11/      DE : =0H                  PIA_IN      EQU     $00
+(1)   12/      DE : =0FFH                PIA_OUT     EQU     $FF
+(1)   13/      DE :                     
+(1)   14/      DE : =1H                  FT240_WRMSK EQU     $01     ; WR on bit-0, pulse high to write to the FIFO
+(1)   15/      DE : =20H                 FT240_SIWU  EQU     $20     ; SIWU on bit 5, always high
+(1)   16/      DE : =0EH                 FT240_NOSTB EQU     $0E     ; RD# = 1, irqs disabled 
+(1)   17/      DE : =0CH                 FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled (used to read from the FIFO)
+(1)   18/      DE : =40H                 FT240_TXE   EQU     $40     ; TXE# on bit 6 (FIFO can accept data when low)
+(1)   19/      DE : =80H                 FT240_RXF   EQU     $80     ; RXF# on bit 7 (FIFO has data when low)
+(1)   20/      DE :                     
+(1)   21/      DE :                     ; Initialize the VIA to operate iwth the FT240, which is use for console IO.
+(1)   22/      DE :                     FT240_init:
+(1)   23/      DE : 3E 0E                   ld      a,FT240_NOSTB  ; RD# = 1
+(1)   24/      E0 : D3 0C                   out     PIA_PCR,a
+(1)   25/      E2 : DB 00                   in      a,PIA_PORTB
+(1)   26/      E4 : E6 FE                   and     ~FT240_WRMSK   ; WR = 0, don't touch the other bits
+(1)   27/      E6 : F6 20                   or      FT240_SIWU     ; SIWU = 1, dont' tough the other bits
+(1)   28/      E8 : D3 00                   out     PIA_PORTB,a
+(1)   29/      EA : 3E 00                   ld      a,PIA_IN       ; data port input, its only output when writing to FT240
+(1)   30/      EC : D3 03                   out     PIA_DDRA,a
+(1)   31/      EE : DB 02                   in      a,PIA_DDRB    ; control ports bits for FT240, don't touch other bits
+(1)   32/      F0 : F6 21                   or      (FT240_WRMSK | FT240_SIWU) & $FF   ; Ouptut pins
+(1)   33/      F2 : E6 3F                   and     (~(FT240_RXF | FT240_TXE)) & $FF   ; Input pins
+(1)   34/      F4 : D3 02                   out     PIA_DDRB,a
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm(uart.asm) - Page 4 - 1/3/2023 19:22:27
+
+
+(1)   35/      F6 :                     
+(1)   36/      F6 :                     FT240_Flush:
+(1)   37/      F6 : DB 00                   in      a,PIA_PORTB   ; Test RXF# (bit-7)
+(1)   38/      F8 : CB 7F                   bit     7,a
+(1)   39/      FA : C0                      ret     nz              ; Return when RXF# is set, no data in FIFO
+(1)   40/      FB : 3E 0C                   ld      a,FT240_RDSTB  ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   41/      FD : D3 0C                   out     PIA_PCR,a
+(1)   42/      FF : 00                      nop
+(1)   43/     100 : 3E 0E                   ld      a,FT240_NOSTB  ; FT240 RD# = 1
+(1)   44/     102 : D3 0C                   out     PIA_PCR,a
+(1)   45/     104 : C3 F6 00                jp      FT240_Flush
+(1)   46/     107 :                     $$NoChar:
+(1)   47/     107 : C9                      ret
+(1)   48/     108 :                     
+(1)   49/     108 :                     ; Output the value in the acc to the console    
+(1)   50/     108 :                     PutChar:
+(1)   51/     108 : C5                      push    bc
+(1)   52/     109 : 0E 00                   ld      c,PIA_PORTB
+(1)   53/     10B :                     $$PutCharPoll:
+(1)   54/     10B : ED 40                   in      b,(c)           ; Test TXE (bit-6)
+(1)   55/     10D : CB 70                   bit     6,b
+(1)   56/     10F : C2 0B 01                jp      nz,$$PutCharPoll     ; When set the FIFO is full, keep polling until there is room
+(1)   57/     112 : D3 01                   out     PIA_PORTA,a   ; Write data to port
+(1)   58/     114 : 3E FF                   ld      a,PIA_OUT      ; Set data port direction to output
+(1)   59/     116 : D3 03                   out     PIA_DDRA,a
+(1)   60/     118 : DB 00                   in      a,PIA_PORTB   ; FT240 WR = 1 (don't touch other bits)
+(1)   61/     11A : F6 01                   or      FT240_WRMSK
+(1)   62/     11C : D3 00                   out     PIA_PORTB,a
+(1)   63/     11E : E6 FE                   and     ~FT240_WRMSK   ; FT240 WR = 0
+(1)   64/     120 : D3 00                   out     PIA_PORTB,a
+(1)   65/     122 : 3E 00                   ld      a,PIA_IN         ; Set data port direction to input
+(1)   66/     124 : D3 03                   out     PIA_DDRA,a
+(1)   67/     126 : C1                      pop     bc
+(1)   68/     127 : C9                      ret
+(1)   69/     128 :                     
+(1)   70/     128 :                     ; Read a character from the console in the acc, C == 1 indicates a character was read
+(1)   71/     128 :                     GetChar:
+(1)   72/     128 : C5                      push    bc
+(1)   73/     129 : DB 00                   in      a,PIA_PORTB   ; Test RXF# (bit-7)
+(1)   74/     12B : CB 7F                   bit     7,a
+(1)   75/     12D : C2 3F 01                jp      nz,$$NoChar        ; Branch when RXF# is set, no data in FIFO
+(1)   76/     130 : 3E 0C                   ld      a,FT240_RDSTB   ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   77/     132 : D3 0C                   out     PIA_PCR,a
+(1)   78/     134 : DB 01                   in      a,PIA_PORTA   ; Read data byte from FT240 (assumes DDR in input)
+(1)   79/     136 : 47                      ld      b,a
+(1)   80/     137 : 3E 0E                   ld      a,FT240_NOSTB    ; FT240 RD# = 1
+(1)   81/     139 : D3 0C                   out     PIA_PCR,a
+(1)   82/     13B : 37                      scf                     ; Set carry to indicate we read a data byte
+(1)   83/     13C : 78                      ld      a,b
+(1)   84/     13D : C1                      pop     bc
+(1)   85/     13E : C9                      ret
+(1)   86/     13F :                     $$NoChar:
+(1)   87/     13F : 37                      scf                     ; CLear carry to indicate there was nothing to read
+(1)   88/     140 : 3F                      ccf                     
+(1)   89/     141 : C1                      pop     bc
+(1)   90/     142 : C9                      ret
+(1)   91/     143 :                        
+       7/     143 :                     
+       8/     143 :                     ; Simple monitor:
+       9/     143 :                     ; Prompt messsage is:
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 5 - 1/3/2023 19:22:27
+
+
+      10/     143 :                     ; 
+      11/     143 :                     ; aaaa bb>
+      12/     143 :                     ; 
+      13/     143 :                     ; Where aaaa is the current addess and bb is the current value at that address.
+      14/     143 :                     ;
+      15/     143 :                     ; Commands:
+      16/     143 :                     ; ?     Show the info message
+      17/     143 :                     ; =     Re-read the current address
+      18/     143 :                     ; <lf>  Write to current address and increment address
+      19/     143 :                     ; +     Increment current address
+      20/     143 :                     ; -     Decrement current address
+      21/     143 :                     ; g     Go to current address
+      22/     143 :                     ; <sp>  Set current address
+      23/     143 :                     
+      24/     143 :                     ; HL is addrH, addrL
+      25/     143 :                     ; DE is userH, userL
+      26/     143 :                     
+      27/     143 :                     reset:
+      28/     143 : ED 56                   im      1               ; Use a known vector for interrups
+      29/     145 : 31 FF FF                ld      sp,$FFFF
+      30/     148 : CD DE 00                call    FT240_init
+      31/     14B : CD 80 00                call    LED_init
+      32/     14E :                     
+      33/     14E :                     InitMon:
+      34/     14E : 21 00 00                ld      hl,$0000
+      35/     151 : 11 00 00                ld      de,$0000
+      36/     154 :                         
+      37/     154 :                     InfoCmd:
+      38/     154 : 01 2E 02                ld      bc,InfoStr
+      39/     157 :                     $$loop:
+      40/     157 : 0A                      ld      a,(bc)
+      41/     158 : FE 00                   cp      $00
+      42/     15A : CA 65 01                jp      z,Prompt
+      43/     15D : CD 08 01                call    PutChar
+      44/     160 : 03                      inc     bc
+      45/     161 : C3 57 01                jp      $$loop
+      46/     164 :                     
+      47/     164 : 76                      halt
+      48/     165 :                     
+      49/     165 :                     Prompt:
+      50/     165 : CD 96 00                call    LED_RED_Off
+      51/     168 : 3E 0A                   ld      a,$0a           ; Show Prompt
+      52/     16A : CD 08 01                call    PutChar
+      53/     16D : 7C                      ld      a,h             ; Show high address
+      54/     16E : CD FD 01                call    PutHex
+      55/     171 : 7D                      ld      a,l             ; Show low address
+      56/     172 : CD FD 01                call    PutHex
+      57/     175 : 3E 20                   ld      a,' '             ; Space to seperate address and data
+      58/     177 : CD 08 01                call    PutChar
+      59/     17A : 7E                      ld      a,(hl)
+      60/     17B : CD FD 01                call    PutHex
+      61/     17E : 3E 3E                   ld      a,'>'            ; Show Prompt
+      62/     180 : CD 08 01                call    PutChar
+      63/     183 :                      NextChar:   
+      64/     183 : CD 28 01                call    GetChar         ; get char from user
+      65/     186 : D2 83 01                jp      nc,NextChar     ; Got a char? Keep polling until we get a char
+      66/     189 : CD 8D 00                call    LED_RED_On
+      67/     18C : 47                      ld      b,a
+      68/     18D : CD 08 01                call    PutChar         ; Should we echo the character?????
+      69/     190 : 78                      ld      a,b
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 6 - 1/3/2023 19:22:27
+
+
+      70/     191 : FE 3F                   cp      '?'             ; Show info?
+      71/     193 : CA 54 01                jp      z,InfoCmd
+      72/     196 : FE 3D                   cp      '='             ; re-read address?
+      73/     198 : CA 65 01                jp      z,Prompt
+      74/     19B : FE 0A                   cp      $0a             ; Write data byte?
+      75/     19D : C2 A4 01                jp      nz,NotWrite
+      76/     1A0 : 73                      ld      (hl),e          ; Store the last 8-bit value entered at the current address    
+      77/     1A1 : C3 A9 01                jp      DoInc           ; Increment the current address
+      78/     1A4 :                     
+      79/     1A4 :                     NotWrite:
+      80/     1A4 : FE 2B                   cp     '+'              ; Incement address?
+      81/     1A6 : C2 AD 01                jp      nz,NotInc
+      82/     1A9 :                     DoInc:
+      83/     1A9 : 23                      inc     hl
+      84/     1AA : C3 65 01                jp      Prompt
+      85/     1AD :                     
+      86/     1AD :                     NotInc:
+      87/     1AD : FE 2D                   cp      '-'             ; Decrement address?
+      88/     1AF : C2 B6 01                jp      nz,NotDec
+      89/     1B2 : 2B                      dec     hl
+      90/     1B3 : C3 65 01                jp      Prompt
+      91/     1B6 :                     
+      92/     1B6 :                     NotDec:
+      93/     1B6 : FE 67                   cp      'g'            ; go to address?
+      94/     1B8 : C2 C0 01                jp      nz,NotGo
+      95/     1BB : 01 43 01                ld      bc,reset
+      96/     1BE : C5                      push    bc
+      97/     1BF : E9                      jp      (hl)
+      98/     1C0 :                     
+      99/     1C0 :                     NotGo:
+     100/     1C0 : FE 20                   cp      ' '            ; set current address?
+     101/     1C2 : C2 CD 01                jp      NZ,NotAddr
+     102/     1C5 : 62                      ld      h,d
+     103/     1C6 : 6B                      ld      l,e
+     104/     1C7 : 11 00 00                ld      de,$0000
+     105/     1CA : C3 65 01                jp      Prompt         ; Continue with the new address 
+     106/     1CD :                     
+     107/     1CD :                     NotAddr:
+     108/     1CD :                     ParseHex:
+     109/     1CD :                         ; Process hex digit [0..9][A..F][a..f]    
+     110/     1CD : E5                      push    hl              ; Save HL and BC 
+     111/     1CE : C5                      push    bc
+     112/     1CF : F6 20                   or      $20             ; Force to lower
+     113/     1D1 : 21 1E 02                ld      hl,HexChars     ; Lookup hex digit in table
+     114/     1D4 : 01 10 00                ld      bc,16
+     115/     1D7 : ED B1                   cpir
+     116/     1D9 : CA E1 01                jp      z,GotHex        ; Jump when a hex digit was found
+     117/     1DC : C1                      pop     bc              ; Not a hex digit, restor HL and BC
+     118/     1DD : E1                      pop     hl
+     119/     1DE : C3 65 01                jp      Prompt          ; Ignore chractervand show prompt
+     120/     1E1 :                     
+     121/     1E1 :                     GotHex:
+     122/     1E1 : CB 23                   sla     e               ; Shift the user value to the left by 4 bits
+     123/     1E3 : CB 12                   rl      d
+     124/     1E5 : CB 23                   sla     e
+     125/     1E7 : CB 12                   rl      d
+     126/     1E9 : CB 23                   sla     e
+     127/     1EB : CB 12                   rl      d
+     128/     1ED : CB 23                   sla     e
+     129/     1EF : CB 12                   rl      d
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 7 - 1/3/2023 19:22:27
+
+
+     130/     1F1 : 79                      ld      a,c             ; determin what digit we got
+     131/     1F2 : 2F                      cpl
+     132/     1F3 : E6 0F                   and     $0f      
+     133/     1F5 : B3                      or      e               ; Or it into the user value
+     134/     1F6 : 5F                      ld      e,a
+     135/     1F7 : C1                      pop     bc              ; Restore HL and BC
+     136/     1F8 : E1                      pop     hl
+     137/     1F9 : 00                      nop
+     138/     1FA : C3 83 01                jp      NextChar
+     139/     1FD :                         
+     140/     1FD :                     ; Output the value in acc to the console as two hex bytes
+     141/     1FD :                      PutHex:
+     142/     1FD : 47                      ld      b,a                 ; save value for later
+     143/     1FE : CB 3F                   srl     a                   ; move high nibble to low
+     144/     200 : CB 3F                   srl     a
+     145/     202 : CB 3F                   srl     a
+     146/     204 : CB 3F                   srl     a
+     147/     206 : E5                      push    hl                  ; save for later
+     148/     207 : 21 1E 02                ld      hl,HexChars         ; lookup hex digit              
+     149/     20A : 85                      add     a,l                 ; (only works when table does not pass page boundary)
+     150/     20B : 6F                      ld      l,a
+     151/     20C : 7E                      ld      a,(hl)              
+     152/     20D : CD 08 01                call    PutChar             ; Send out high digit
+     153/     210 : 78                      ld      a,b                 ; get value back
+     154/     211 : E6 0F                   and     $0f                 ; mask high nibble away
+     155/     213 : 21 1E 02                ld      hl,HexChars         ; lookup hex digit              
+     156/     216 : 85                      add     a,l                 ; (only works when table does not pass page boundary)
+     157/     217 : 6F                      ld      l,a
+     158/     218 : 7E                      ld      a,(hl)              
+     159/     219 : CD 08 01                call    PutChar             ; Send out low digit
+     160/     21C : E1                      pop     hl                  ; restore old value
+     161/     21D : C9                      ret
+     162/     21E :                     
+     163/     21E :                     HexChars:
+     164/     21E : 30 31 32 33 34 35       db     "0123456789abcdef"
+              224 : 36 37 38 39 61 62 
+              22A : 63 64 65 66       
+     165/     22E :                         
+     166/     22E :                     InfoStr:
+     167/     22E : 0A 4D 69 6E 69 4D       db     10,"MiniMon,0.1,Z80,0",10,0
+              234 : 6F 6E 2C 30 2E 31 
+              23A : 2C 5A 38 30 2C 30 
+              240 : 0A 00             
+     168/     242 :                     
+     169/     242 :                         
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 8 - 1/3/2023 19:22:27
+
+
+  Symbol Table (* = unused):
+  --------------------------
+
+*ARCHITECTURE :                                        "i386-unknown-win32" - |
+*CASESENSITIVE :                  0 - | *COMPMODE :                       0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                  "1/3/2023" - |
+ DOINC :                        1A9 C | *FALSE :                          0 - |
+ FT240_FLUSH :                  0F6 C |  FT240_INIT :                   0DE C |
+ FT240_NOSTB :                   0E - |  FT240_RDSTB :                   0C - |
+ FT240_RXF :                     80 - |  FT240_SIWU :                    20 - |
+ FT240_TXE :                     40 - |  FT240_WRMSK :                    1 - |
+*FULLPMMU :                       1 - |  GETCHAR :                      128 C |
+ GOTHEX :                       1E1 C | *HAS64 :                          0 - |
+*HASFPU :                         0 - | *HASPMMU :                        0 - |
+ HEXCHARS :                     21E C |  INFOCMD :                      154 C |
+ INFOSTR :                      22E C | *INITMON :                      14E C |
+*INSUPMODE :                      0 - |  IRQ :                           38 C |
+ LED_BLUE :                       2 - | *LED_BLUE_OFF :                 0CC C |
+*LED_BLUE_ON :                  0C3 C | *LED_BLUE_TOGGLE :              0D5 C |
+ LED_GREEN :                      8 - | *LED_GREEN_OFF :                0B1 C |
+*LED_GREEN_ON :                 0A8 C | *LED_GREEN_TOGGLE :             0BA C |
+ LED_INIT :                      80 C |  LED_RED :                        4 - |
+ LED_RED_OFF :                   96 C |  LED_RED_ON :                    8D C |
+*LED_RED_TOGGLE :                9F C | *LISTON :                         1 - |
+ LOOP45 :                       157 C | *MACEXP :                         7 - |
+*MOMCPU :                        80 - | *MOMCPUNAME :                 "Z80" - |
+*NESTMAX :                      100 - |  NEXTCHAR :                     183 C |
+ NMI :                           66 C | *NOCHAR40 :                     107 C |
+ NOCHAR42 :                     13F C |  NOTADDR :                      1CD C |
+ NOTDEC :                       1B6 C |  NOTGO :                        1C0 C |
+ NOTINC :                       1AD C |  NOTWRITE :                     1A4 C |
+*PADDING :                        1 - | *PARSEHEX :                     1CD C |
+*PIA_ACR :                       0B - |  PIA_BASE :                       0 - |
+ PIA_DDRA :                       3 - |  PIA_DDRB :                       2 - |
+ PIA_IN :                         0 - |  PIA_OUT :                      0FF - |
+ PIA_PCR :                       0C - |  PIA_PORTA :                      1 - |
+ PIA_PORTB :                      0 - |  PROMPT :                       165 C |
+ PUTCHAR :                      108 C |  PUTCHARPOLL41 :                10B C |
+ PUTHEX :                       1FD C | *RELAXED :                        1 - |
+ RESET :                        143 C | *TIME :                  "19:22:27" - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     75 symbols
+     32 unused symbols
+
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 9 - 1/3/2023 19:22:27
+
+
+  Defined Macros:
+  ---------------
+
+LEDOFF                                | LEDON                                
+LEDTOGGLE                             |
+
+      3 macros
+
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 10 - 1/3/2023 19:22:27
+
+
+  Code Pages:
+  ----------
+
+STANDARD (0 changed characters)
+
+1 code page
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 11 - 1/3/2023 19:22:27
+
+
+
+  Cross Reference List:
+  ---------------------
+
+symbol DOINC (=1A9, monitor.asm:82):
+ file monitor.asm :
+     77    
+
+symbol FT240_FLUSH (=0F6, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:36):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     45    
+
+symbol FT240_INIT (=0DE, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:22):
+ file monitor.asm :
+     30    
+
+symbol FT240_NOSTB (=0E, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:16):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     23       43       80    
+
+symbol FT240_RDSTB (=0C, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:17):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     40       76    
+
+symbol FT240_RXF (=80, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:19):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     33    
+
+symbol FT240_SIWU (=20, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:15):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     27       32    
+
+symbol FT240_TXE (=40, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:18):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     33    
+
+symbol FT240_WRMSK (=1, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:14):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     26       32       61       63    
+
+symbol GETCHAR (=128, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:71):
+ file monitor.asm :
+     64    
+
+symbol GOTHEX (=1E1, monitor.asm:121):
+ file monitor.asm :
+    116    
+
+symbol HEXCHARS (=21E, monitor.asm:163):
+ file monitor.asm :
+    113      148      155    
+
+symbol INFOCMD (=154, monitor.asm:37):
+ file monitor.asm :
+     71    
+
+symbol INFOSTR (=22E, monitor.asm:166):
+ file monitor.asm :
+     38    
+
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 12 - 1/3/2023 19:22:27
+
+
+symbol IRQ (=38, Z:\prj\homebrew\software\Z80\monitor\../common\vec.asm:7):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\vec.asm :
+      8    
+
+symbol LED_BLUE (=2, Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm:7):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm :
+     41       44    
+
+symbol LED_GREEN (=8, Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm:6):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm :
+     41       44    
+
+symbol LED_INIT (=80, Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm:39):
+ file monitor.asm :
+     31    
+
+symbol LED_RED (=4, Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm:5):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm :
+     41       44       48       49       50       52       53       54    
+     56       57       58    
+
+symbol LED_RED_OFF (=96, Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm:49):
+ file monitor.asm :
+     50    
+
+symbol LED_RED_ON (=8D, Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm:48):
+ file monitor.asm :
+     66    
+
+symbol LOOP45 (=157, monitor.asm:39):
+ file monitor.asm :
+     45    
+
+symbol NEXTCHAR (=183, monitor.asm:63):
+ file monitor.asm :
+     65      138    
+
+symbol NMI (=66, Z:\prj\homebrew\software\Z80\monitor\../common\vec.asm:11):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\vec.asm :
+     12    
+
+symbol NOCHAR42 (=13F, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:86):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     75    
+
+symbol NOTADDR (=1CD, monitor.asm:107):
+ file monitor.asm :
+    101    
+
+symbol NOTDEC (=1B6, monitor.asm:92):
+ file monitor.asm :
+     88    
+
+symbol NOTGO (=1C0, monitor.asm:99):
+ file monitor.asm :
+     94    
+
+symbol NOTINC (=1AD, monitor.asm:86):
+ file monitor.asm :
+     81    
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 13 - 1/3/2023 19:22:27
+
+
+
+symbol NOTWRITE (=1A4, monitor.asm:79):
+ file monitor.asm :
+     75    
+
+symbol PIA_BASE (=0, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:3):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+      4        5        6        7        8        9    
+
+symbol PIA_DDRA (=3, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:7):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     30       59       66    
+
+symbol PIA_DDRB (=2, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:6):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm :
+     43       45    
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     31       34    
+
+symbol PIA_IN (=0, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:11):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     29       65    
+
+symbol PIA_OUT (=0FF, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:12):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     58    
+
+symbol PIA_PCR (=0C, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:9):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     24       41       44       77       81    
+
+symbol PIA_PORTA (=1, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:5):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     57       78    
+
+symbol PIA_PORTB (=0, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:4):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\LED.asm :
+     40       42       48( 2)   49( 2)   50( 2)   52( 2)   53( 2)   54( 2)
+     56( 2)   57( 2)   58( 2)
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     25       28       37       52       60       62       64       73    
+
+symbol PROMPT (=165, monitor.asm:49):
+ file monitor.asm :
+     42       73       84       90      105      119    
+
+symbol PUTCHAR (=108, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:50):
+ file monitor.asm :
+     43       52       58       62       68      152      159    
+
+symbol PUTCHARPOLL41 (=10B, Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm:53):
+ file Z:\prj\homebrew\software\Z80\monitor\../common\uart.asm :
+     56    
+
+symbol PUTHEX (=1FD, monitor.asm:141):
+ file monitor.asm :
+     54       56       60    
+
+symbol RESET (=143, monitor.asm:27):
+ file monitor.asm :
+ AS V1.42 Beta [Bld 223] - Source File monitor.asm - Page 14 - 1/3/2023 19:22:27
+
+
+     95    
+ file Z:\prj\homebrew\software\Z80\monitor\../common\vec.asm :
+      4    
+
+
+
+0.01 seconds assembly time
+
+    337 lines source file
+    400 lines incl. macro expansions
+      2 passes
+      0 errors
+      0 warnings
