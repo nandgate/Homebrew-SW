@@ -36,12 +36,14 @@ void com_parse(char c) {
     case '?':
       Serial.print("\ntester,");
       Serial.print(VERSION);
-      Serial.println(NUMBER_OF_SLOTS);
+      Serial.print(NUMBER_OF_SLOTS);
+      Serial.print('\n');
       break;
 
     case '-':
       Serial.print("12V_MON,");
-      Serial.println((analogRead(V12_MON)+analogRead(V12_MON)) / (2 * V12_CONV)); // average two samples to lower LSB noise
+      Serial.print((analogRead(V12_MON)+analogRead(V12_MON)) / (2 * V12_CONV)); // average two samples to lower LSB noise
+      Serial.print('\n');
       break;
 
     case 'I':
@@ -225,7 +227,7 @@ void com_prompt(void) {
   } else {
     Serial.print('0');
   }  
-  Serial.println('>');
+  Serial.print('>');
 }
 
 void com_tick(void) {
