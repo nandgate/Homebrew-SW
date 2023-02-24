@@ -1,0 +1,469 @@
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 1 - 2/9/2023 5:10:18
+
+
+       1/       0 :                         CPU     Z80
+       2/       0 :                     
+       3/    9000 :                         ORG     $9000
+       4/    9000 :                         include "LED.asm"
+(1)    1/    9000 :                         CPU     Z80
+(1)    2/    9000 :                         
+(1)    3/    9000 :                     ; PIA already defined in uart.asm
+(1)    4/    9000 :                     
+(1)    5/    9000 : =4H                  LED_RED     EQU     $04
+(1)    6/    9000 : =8H                  LED_GREEN   EQU     $08
+(1)    7/    9000 : =2H                  LED_BLUE    EQU     $02
+(1)    8/    9000 :                     
+(1)    9/    9000 :                     ledon   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   10/    9000 :                     LED_name_On:
+(1)   11/    9000 :                         ex      af,af'
+(1)   12/    9000 :                         in      a,PIA_PORTB
+(1)   13/    9000 :                         or      LED_RED
+(1)   14/    9000 :                         out     PIA_PORTB,a
+(1)   15/    9000 :                         ex      af,af'
+(1)   16/    9000 :                         ret
+(1)   17/    9000 :                         endm
+(1)   18/    9000 :                         
+(1)   19/    9000 :                     ledoff   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   20/    9000 :                     LED_name_Off:
+(1)   21/    9000 :                         ex      af,af'
+(1)   22/    9000 :                         in      a,PIA_PORTB
+(1)   23/    9000 :                         and     (~LED_RED) & 255
+(1)   24/    9000 :                         out     PIA_PORTB,a
+(1)   25/    9000 :                         ex      af,af'
+(1)   26/    9000 :                         ret
+(1)   27/    9000 :                         endm
+(1)   28/    9000 :                     
+(1)   29/    9000 :                     ledtoggle   macro   name,bitName,{GLOBALSYMBOLS}
+(1)   30/    9000 :                     LED_name_Toggle:
+(1)   31/    9000 :                         ex      af,af'
+(1)   32/    9000 :                         in      a,PIA_PORTB
+(1)   33/    9000 :                         xor     LED_RED
+(1)   34/    9000 :                         out     PIA_PORTB,a
+(1)   35/    9000 :                         ex      af,af'
+(1)   36/    9000 :                         ret
+(1)   37/    9000 :                         endm
+(1)   38/    9000 :                     
+(1)   39/    9000 :                     LED_init:
+(1)   40/    9000 : DB 00                   in      a,PIA_PORTB
+(1)   41/    9002 : E6 F1                   and     (~(LED_RED | LED_GREEN | LED_BLUE)) & 255
+(1)   42/    9004 : D3 00                   out     PIA_PORTB,a
+(1)   43/    9006 : DB 02                   in      a,PIA_DDRB
+(1)   44/    9008 : F6 0E                   or      (LED_RED | LED_GREEN | LED_BLUE) & 255
+(1)   45/    900A : D3 02                   out     PIA_DDRB,a
+(1)   46/    900C : C9                      ret
+(1)   47/    900D :                     
+(1)   48/    900D : (MACRO)                  ledon       Red,LED_RED
+(1)   48/    900D :                     LED_RED_On:
+(1)   48/    900D : 08                      ex      af,af'
+(1)   48/    900E : DB 00                   in      a,PIA_PORTB
+(1)   48/    9010 : F6 04                   or      LED_RED
+(1)   48/    9012 : D3 00                   out     PIA_PORTB,a
+(1)   48/    9014 : 08                      ex      af,af'
+(1)   48/    9015 : C9                      ret
+(1)   49/    9016 : (MACRO)                  ledoff      Red,LED_RED
+ AS V1.42 Beta [Bld 223] - Source File hello.asm(LED.asm) - Page 2 - 2/9/2023 5:10:18
+
+
+(1)   49/    9016 :                     LED_RED_Off:
+(1)   49/    9016 : 08                      ex      af,af'
+(1)   49/    9017 : DB 00                   in      a,PIA_PORTB
+(1)   49/    9019 : E6 FB                   and     (~LED_RED) & 255
+(1)   49/    901B : D3 00                   out     PIA_PORTB,a
+(1)   49/    901D : 08                      ex      af,af'
+(1)   49/    901E : C9                      ret
+(1)   50/    901F : (MACRO)                  ledtoggle   Red,LED_RED
+(1)   50/    901F :                     LED_RED_Toggle:
+(1)   50/    901F : 08                      ex      af,af'
+(1)   50/    9020 : DB 00                   in      a,PIA_PORTB
+(1)   50/    9022 : EE 04                   xor     LED_RED
+(1)   50/    9024 : D3 00                   out     PIA_PORTB,a
+(1)   50/    9026 : 08                      ex      af,af'
+(1)   50/    9027 : C9                      ret
+(1)   51/    9028 :                         
+(1)   52/    9028 : (MACRO)                  ledon       Green,LED_GREEN
+(1)   52/    9028 :                     LED_GREEN_On:
+(1)   52/    9028 : 08                      ex      af,af'
+(1)   52/    9029 : DB 00                   in      a,PIA_PORTB
+(1)   52/    902B : F6 04                   or      LED_RED
+(1)   52/    902D : D3 00                   out     PIA_PORTB,a
+(1)   52/    902F : 08                      ex      af,af'
+(1)   52/    9030 : C9                      ret
+(1)   53/    9031 : (MACRO)                  ledoff      Green,LED_GREEN
+(1)   53/    9031 :                     LED_GREEN_Off:
+(1)   53/    9031 : 08                      ex      af,af'
+(1)   53/    9032 : DB 00                   in      a,PIA_PORTB
+(1)   53/    9034 : E6 FB                   and     (~LED_RED) & 255
+(1)   53/    9036 : D3 00                   out     PIA_PORTB,a
+(1)   53/    9038 : 08                      ex      af,af'
+(1)   53/    9039 : C9                      ret
+(1)   54/    903A : (MACRO)                  ledtoggle   Green,LED_GREEN
+(1)   54/    903A :                     LED_GREEN_Toggle:
+(1)   54/    903A : 08                      ex      af,af'
+(1)   54/    903B : DB 00                   in      a,PIA_PORTB
+(1)   54/    903D : EE 04                   xor     LED_RED
+(1)   54/    903F : D3 00                   out     PIA_PORTB,a
+(1)   54/    9041 : 08                      ex      af,af'
+(1)   54/    9042 : C9                      ret
+(1)   55/    9043 :                     
+(1)   56/    9043 : (MACRO)                  ledon       Blue,LED_BLUE
+(1)   56/    9043 :                     LED_BLUE_On:
+(1)   56/    9043 : 08                      ex      af,af'
+(1)   56/    9044 : DB 00                   in      a,PIA_PORTB
+(1)   56/    9046 : F6 04                   or      LED_RED
+(1)   56/    9048 : D3 00                   out     PIA_PORTB,a
+(1)   56/    904A : 08                      ex      af,af'
+(1)   56/    904B : C9                      ret
+(1)   57/    904C : (MACRO)                  ledoff      Blue,LED_BLUE
+(1)   57/    904C :                     LED_BLUE_Off:
+(1)   57/    904C : 08                      ex      af,af'
+(1)   57/    904D : DB 00                   in      a,PIA_PORTB
+(1)   57/    904F : E6 FB                   and     (~LED_RED) & 255
+(1)   57/    9051 : D3 00                   out     PIA_PORTB,a
+(1)   57/    9053 : 08                      ex      af,af'
+(1)   57/    9054 : C9                      ret
+(1)   58/    9055 : (MACRO)                  ledtoggle   Blue,LED_BLUE
+(1)   58/    9055 :                     LED_BLUE_Toggle:
+(1)   58/    9055 : 08                      ex      af,af'
+ AS V1.42 Beta [Bld 223] - Source File hello.asm(LED.asm) - Page 3 - 2/9/2023 5:10:18
+
+
+(1)   58/    9056 : DB 00                   in      a,PIA_PORTB
+(1)   58/    9058 : EE 04                   xor     LED_RED
+(1)   58/    905A : D3 00                   out     PIA_PORTB,a
+(1)   58/    905C : 08                      ex      af,af'
+(1)   58/    905D : C9                      ret
+(1)   59/    905E :                     
+(1)   60/    905E :                         
+(1)   61/    905E :                         
+(1)   62/    905E :                     
+       5/    905E :                         include "uart.asm"
+(1)    1/    905E :                         CPU     Z80
+(1)    2/    905E :                     
+(1)    3/    905E : =0H                  PIA_BASE    EQU     $00
+(1)    4/    905E : =0H                  PIA_PORTB   EQU     PIA_BASE + $0
+(1)    5/    905E : =1H                  PIA_PORTA   EQU     PIA_BASE + $1
+(1)    6/    905E : =2H                  PIA_DDRB    EQU     PIA_BASE + $2
+(1)    7/    905E : =3H                  PIA_DDRA    EQU     PIA_BASE + $3
+(1)    8/    905E : =0BH                 PIA_ACR     EQU     PIA_BASE + $B
+(1)    9/    905E : =0CH                 PIA_PCR     EQU     PIA_BASE + $C
+(1)   10/    905E :                         
+(1)   11/    905E : =0H                  PIA_IN      EQU     $00
+(1)   12/    905E : =0FFH                PIA_OUT     EQU     $FF
+(1)   13/    905E :                     
+(1)   14/    905E : =1H                  FT240_WRMSK EQU     $01     ; WR on bit-0, pulse high to write to the FIFO
+(1)   15/    905E : =20H                 FT240_SIWU  EQU     $20     ; SIWU on bit 5, always high
+(1)   16/    905E : =0EH                 FT240_NOSTB EQU     $0E     ; RD# = 1, irqs disabled 
+(1)   17/    905E : =0CH                 FT240_RDSTB EQU     $0C     ; RD# = 0, irqs disabled (used to read from the FIFO)
+(1)   18/    905E : =40H                 FT240_TXE   EQU     $40     ; TXE# on bit 6 (FIFO can accept data when low)
+(1)   19/    905E : =80H                 FT240_RXF   EQU     $80     ; RXF# on bit 7 (FIFO has data when low)
+(1)   20/    905E :                     
+(1)   21/    905E :                     ; Initialize the VIA to operate iwth the FT240, which is use for console IO.
+(1)   22/    905E :                     FT240_init:
+(1)   23/    905E : 3E 0E                   ld      a,FT240_NOSTB  ; RD# = 1
+(1)   24/    9060 : D3 0C                   out     PIA_PCR,a
+(1)   25/    9062 : DB 00                   in      a,PIA_PORTB
+(1)   26/    9064 : E6 FE                   and     ~FT240_WRMSK   ; WR = 0, don't touch the other bits
+(1)   27/    9066 : F6 20                   or      FT240_SIWU     ; SIWU = 1, dont' tough the other bits
+(1)   28/    9068 : D3 00                   out     PIA_PORTB,a
+(1)   29/    906A : 3E 00                   ld      a,PIA_IN       ; data port input, its only output when writing to FT240
+(1)   30/    906C : D3 03                   out     PIA_DDRA,a
+(1)   31/    906E : DB 02                   in      a,PIA_DDRB    ; control ports bits for FT240, don't touch other bits
+(1)   32/    9070 : F6 21                   or      (FT240_WRMSK | FT240_SIWU) & $FF   ; Ouptut pins
+(1)   33/    9072 : E6 3F                   and     (~(FT240_RXF | FT240_TXE)) & $FF   ; Input pins
+(1)   34/    9074 : D3 02                   out     PIA_DDRB,a
+(1)   35/    9076 :                     
+(1)   36/    9076 :                     FT240_Flush:
+(1)   37/    9076 : DB 00                   in      a,PIA_PORTB   ; Test RXF# (bit-7)
+(1)   38/    9078 : CB 7F                   bit     7,a
+(1)   39/    907A : C0                      ret     nz              ; Return when RXF# is set, no data in FIFO
+(1)   40/    907B : 3E 0C                   ld      a,FT240_RDSTB  ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   41/    907D : D3 0C                   out     PIA_PCR,a
+(1)   42/    907F : 00                      nop
+(1)   43/    9080 : 3E 0E                   ld      a,FT240_NOSTB  ; FT240 RD# = 1
+(1)   44/    9082 : D3 0C                   out     PIA_PCR,a
+(1)   45/    9084 : C3 76 90                jp      FT240_Flush
+(1)   46/    9087 :                     $$NoChar:
+(1)   47/    9087 : C9                      ret
+(1)   48/    9088 :                     
+(1)   49/    9088 :                     ; Output the value in A to the console
+(1)   50/    9088 :                     PutChar:
+ AS V1.42 Beta [Bld 223] - Source File hello.asm(uart.asm) - Page 4 - 2/9/2023 5:10:18
+
+
+(1)   51/    9088 : C5                      push    bc
+(1)   52/    9089 : 0E 00                   ld      c,PIA_PORTB
+(1)   53/    908B :                     $$PutCharPoll:
+(1)   54/    908B : ED 40                   in      b,(c)           ; Test TXE (bit-6)
+(1)   55/    908D : CB 70                   bit     6,b
+(1)   56/    908F : C2 8B 90                jp      nz,$$PutCharPoll     ; When set the FIFO is full, keep polling until there is room
+(1)   57/    9092 : D3 01                   out     PIA_PORTA,a   ; Write data to port
+(1)   58/    9094 : 3E FF                   ld      a,PIA_OUT      ; Set data port direction to output
+(1)   59/    9096 : D3 03                   out     PIA_DDRA,a
+(1)   60/    9098 : DB 00                   in      a,PIA_PORTB   ; FT240 WR = 1 (don't touch other bits)
+(1)   61/    909A : F6 01                   or      FT240_WRMSK
+(1)   62/    909C : D3 00                   out     PIA_PORTB,a
+(1)   63/    909E : E6 FE                   and     ~FT240_WRMSK   ; FT240 WR = 0
+(1)   64/    90A0 : D3 00                   out     PIA_PORTB,a
+(1)   65/    90A2 : 3E 00                   ld      a,PIA_IN         ; Set data port direction to input
+(1)   66/    90A4 : D3 03                   out     PIA_DDRA,a
+(1)   67/    90A6 : C1                      pop     bc
+(1)   68/    90A7 : C9                      ret
+(1)   69/    90A8 :                     
+(1)   70/    90A8 :                     ; Non-blocking read a character from the console in the acc, C == 1 indicates a character was read
+(1)   71/    90A8 :                     GetCharNB:
+(1)   72/    90A8 : C5                      push    bc
+(1)   73/    90A9 : DB 00                   in      a,PIA_PORTB   ; Test RXF# (bit-7)
+(1)   74/    90AB : CB 7F                   bit     7,a
+(1)   75/    90AD : C2 BF 90                jp      nz,$$NoChar        ; Branch when RXF# is set, no data in FIFO
+(1)   76/    90B0 : 3E 0C                   ld      a,FT240_RDSTB   ; FT240 RD# = 0; strobe next byte from FIFO
+(1)   77/    90B2 : D3 0C                   out     PIA_PCR,a
+(1)   78/    90B4 : DB 01                   in      a,PIA_PORTA   ; Read data byte from FT240 (assumes DDR in input)
+(1)   79/    90B6 : 47                      ld      b,a
+(1)   80/    90B7 : 3E 0E                   ld      a,FT240_NOSTB    ; FT240 RD# = 1
+(1)   81/    90B9 : D3 0C                   out     PIA_PCR,a
+(1)   82/    90BB : 37                      scf                     ; Set carry to indicate we read a data byte
+(1)   83/    90BC : 78                      ld      a,b
+(1)   84/    90BD : C1                      pop     bc
+(1)   85/    90BE : C9                      ret
+(1)   86/    90BF :                     $$NoChar:
+(1)   87/    90BF : 37                      scf                     ; CLear carry to indicate there was nothing to read
+(1)   88/    90C0 : 3F                      ccf                     
+(1)   89/    90C1 : C1                      pop     bc
+(1)   90/    90C2 : C9                      ret
+(1)   91/    90C3 :                     
+(1)   92/    90C3 :                     ; Blocking read a character from the console
+(1)   93/    90C3 :                     GetChar:
+(1)   94/    90C3 : CD A8 90                call    GetCharNB       ; Is a charcter available
+(1)   95/    90C6 : D2 C3 90                jp      nc,GetChar      ; Got a char? Keep polling until we get a char
+(1)   96/    90C9 : C9                      ret
+       6/    90CA :                     
+       7/    90CA :                     main:
+       8/    90CA : CD 5E 90                call    FT240_init
+       9/    90CD : CD 00 90                call    LED_init
+      10/    90D0 :                     loop:
+      11/    90D0 : 21 E7 90                ld      hl,HelloMsg
+      12/    90D3 : CD 3A 90                call    LED_GREEN_TOGGLE
+      13/    90D6 : CD DC 90                call    putStr
+      14/    90D9 : C3 D0 90                jp      loop
+      15/    90DC :                         
+      16/    90DC :                         ; print null terminated string at (HL)
+      17/    90DC :                     putStr:
+      18/    90DC : 7E                      ld      a,(hl)              ; get the character
+      19/    90DD : E6 FF                   and     a,$FF               ; is it $00?
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 5 - 2/9/2023 5:10:18
+
+
+      20/    90DF : C8                      ret     z                   ; yes, done
+      21/    90E0 : CD 88 90                call    PutChar             ; no, send it
+      22/    90E3 : 23                      inc     hl                  ; increment pointer
+      23/    90E4 : C3 DC 90                jp      putStr              ; output next character
+      24/    90E7 :                     
+      25/    90E7 :                     HelloMsg:
+      26/    90E7 : 48 65 6C 6C 6F 20        db     "Hello world!",10,0
+             90ED : 77 6F 72 6C 64 21 
+             90F3 : 0A 00             
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 6 - 2/9/2023 5:10:18
+
+
+  Symbol Table (* = unused):
+  --------------------------
+
+*ARCHITECTURE :                                        "i386-unknown-win32" - |
+*CASESENSITIVE :                  0 - | *COMPMODE :                       0 - |
+*CONSTPI :        3.141592653589793 - | *DATE :                  "2/9/2023" - |
+*FALSE :                          0 - |  FT240_FLUSH :                 9076 C |
+ FT240_INIT :                  905E C |  FT240_NOSTB :                   0E - |
+ FT240_RDSTB :                   0C - |  FT240_RXF :                     80 - |
+ FT240_SIWU :                    20 - |  FT240_TXE :                     40 - |
+ FT240_WRMSK :                    1 - | *FULLPMMU :                       1 - |
+ GETCHAR :                     90C3 C |  GETCHARNB :                   90A8 C |
+*HAS64 :                          0 - | *HASFPU :                         0 - |
+*HASPMMU :                        0 - |  HELLOMSG :                    90E7 C |
+*INSUPMODE :                      0 - |  LED_BLUE :                       2 - |
+*LED_BLUE_OFF :                904C C | *LED_BLUE_ON :                 9043 C |
+*LED_BLUE_TOGGLE :             9055 C |  LED_GREEN :                      8 - |
+*LED_GREEN_OFF :               9031 C | *LED_GREEN_ON :                9028 C |
+ LED_GREEN_TOGGLE :            903A C |  LED_INIT :                    9000 C |
+ LED_RED :                        4 - | *LED_RED_OFF :                 9016 C |
+*LED_RED_ON :                  900D C | *LED_RED_TOGGLE :              901F C |
+*LISTON :                         1 - |  LOOP :                        90D0 C |
+*MACEXP :                         7 - | *MAIN :                        90CA C |
+*MOMCPU :                        80 - | *MOMCPUNAME :                 "Z80" - |
+*NESTMAX :                      100 - | *NOCHAR36 :                    9087 C |
+ NOCHAR38 :                    90BF C | *PADDING :                        1 - |
+*PIA_ACR :                       0B - |  PIA_BASE :                       0 - |
+ PIA_DDRA :                       3 - |  PIA_DDRB :                       2 - |
+ PIA_IN :                         0 - |  PIA_OUT :                      0FF - |
+ PIA_PCR :                       0C - |  PIA_PORTA :                      1 - |
+ PIA_PORTB :                      0 - |  PUTCHAR :                     9088 C |
+ PUTCHARPOLL37 :               908B C |  PUTSTR :                      90DC C |
+*RELAXED :                        1 - | *TIME :                   "5:10:18" - |
+*TRUE :                           1 - | *VERSION :                     142F - |
+
+     61 symbols
+     32 unused symbols
+
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 7 - 2/9/2023 5:10:18
+
+
+  Defined Macros:
+  ---------------
+
+LEDOFF                                | LEDON                                
+LEDTOGGLE                             |
+
+      3 macros
+
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 8 - 2/9/2023 5:10:18
+
+
+  Code Pages:
+  ----------
+
+STANDARD (0 changed characters)
+
+1 code page
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 9 - 2/9/2023 5:10:18
+
+
+
+  Cross Reference List:
+  ---------------------
+
+symbol FT240_FLUSH (=9076, Y:\software\Z80\hello\../common\uart.asm:36):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     45    
+
+symbol FT240_INIT (=905E, Y:\software\Z80\hello\../common\uart.asm:22):
+ file hello.asm :
+      8    
+
+symbol FT240_NOSTB (=0E, Y:\software\Z80\hello\../common\uart.asm:16):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     23       43       80    
+
+symbol FT240_RDSTB (=0C, Y:\software\Z80\hello\../common\uart.asm:17):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     40       76    
+
+symbol FT240_RXF (=80, Y:\software\Z80\hello\../common\uart.asm:19):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     33    
+
+symbol FT240_SIWU (=20, Y:\software\Z80\hello\../common\uart.asm:15):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     27       32    
+
+symbol FT240_TXE (=40, Y:\software\Z80\hello\../common\uart.asm:18):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     33    
+
+symbol FT240_WRMSK (=1, Y:\software\Z80\hello\../common\uart.asm:14):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     26       32       61       63    
+
+symbol GETCHAR (=90C3, Y:\software\Z80\hello\../common\uart.asm:93):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     95    
+
+symbol GETCHARNB (=90A8, Y:\software\Z80\hello\../common\uart.asm:71):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     94    
+
+symbol HELLOMSG (=90E7, hello.asm:25):
+ file hello.asm :
+     11    
+
+symbol LED_BLUE (=2, Y:\software\Z80\hello\../common\LED.asm:7):
+ file Y:\software\Z80\hello\../common\LED.asm :
+     41       44    
+
+symbol LED_GREEN (=8, Y:\software\Z80\hello\../common\LED.asm:6):
+ file Y:\software\Z80\hello\../common\LED.asm :
+     41       44    
+
+symbol LED_GREEN_TOGGLE (=903A, Y:\software\Z80\hello\../common\LED.asm:54):
+ file hello.asm :
+     12    
+
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 10 - 2/9/2023 5:10:18
+
+
+symbol LED_INIT (=9000, Y:\software\Z80\hello\../common\LED.asm:39):
+ file hello.asm :
+      9    
+
+symbol LED_RED (=4, Y:\software\Z80\hello\../common\LED.asm:5):
+ file Y:\software\Z80\hello\../common\LED.asm :
+     41       44       48       49       50       52       53       54    
+     56       57       58    
+
+symbol LOOP (=90D0, hello.asm:10):
+ file hello.asm :
+     14    
+
+symbol NOCHAR38 (=90BF, Y:\software\Z80\hello\../common\uart.asm:86):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     75    
+
+symbol PIA_BASE (=0, Y:\software\Z80\hello\../common\uart.asm:3):
+ file Y:\software\Z80\hello\../common\uart.asm :
+      4        5        6        7        8        9    
+
+symbol PIA_DDRA (=3, Y:\software\Z80\hello\../common\uart.asm:7):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     30       59       66    
+
+symbol PIA_DDRB (=2, Y:\software\Z80\hello\../common\uart.asm:6):
+ file Y:\software\Z80\hello\../common\LED.asm :
+     43       45    
+ file Y:\software\Z80\hello\../common\uart.asm :
+     31       34    
+
+symbol PIA_IN (=0, Y:\software\Z80\hello\../common\uart.asm:11):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     29       65    
+
+symbol PIA_OUT (=0FF, Y:\software\Z80\hello\../common\uart.asm:12):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     58    
+
+symbol PIA_PCR (=0C, Y:\software\Z80\hello\../common\uart.asm:9):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     24       41       44       77       81    
+
+symbol PIA_PORTA (=1, Y:\software\Z80\hello\../common\uart.asm:5):
+ file Y:\software\Z80\hello\../common\uart.asm :
+     57       78    
+
+symbol PIA_PORTB (=0, Y:\software\Z80\hello\../common\uart.asm:4):
+ file Y:\software\Z80\hello\../common\LED.asm :
+     40       42       48( 2)   49( 2)   50( 2)   52( 2)   53( 2)   54( 2)
+     56( 2)   57( 2)   58( 2)
+ file Y:\software\Z80\hello\../common\uart.asm :
+     25       28       37       52       60       62       64       73    
+
+symbol PUTCHAR (=9088, Y:\software\Z80\hello\../common\uart.asm:50):
+ file hello.asm :
+     21    
+
+symbol PUTCHARPOLL37 (=908B, Y:\software\Z80\hello\../common\uart.asm:53):
+ file Y:\software\Z80\hello\../common\uart.asm :
+ AS V1.42 Beta [Bld 223] - Source File hello.asm - Page 11 - 2/9/2023 5:10:18
+
+
+     56    
+
+symbol PUTSTR (=90DC, hello.asm:17):
+ file hello.asm :
+     13       23    
+
+
+
+0.02 seconds assembly time
+
+    184 lines source file
+    247 lines incl. macro expansions
+      2 passes
+      0 errors
+      0 warnings

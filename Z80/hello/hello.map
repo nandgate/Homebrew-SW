@@ -1,0 +1,97 @@
+Segment CODE
+File Y:\software\Z80\hello\../common\LED.asm
+   40:00009000    41:00009002    42:00009004    43:00009006    44:00009008 
+   45:0000900A    46:0000900C    48:0000900D    48:0000900E    48:00009010 
+   48:00009012    48:00009014    48:00009015    49:00009016    49:00009017 
+   49:00009019    49:0000901B    49:0000901D    49:0000901E    50:0000901F 
+   50:00009020    50:00009022    50:00009024    50:00009026    50:00009027 
+   52:00009028    52:00009029    52:0000902B    52:0000902D    52:0000902F 
+   52:00009030    53:00009031    53:00009032    53:00009034    53:00009036 
+   53:00009038    53:00009039    54:0000903A    54:0000903B    54:0000903D 
+   54:0000903F    54:00009041    54:00009042    56:00009043    56:00009044 
+   56:00009046    56:00009048    56:0000904A    56:0000904B    57:0000904C 
+   57:0000904D    57:0000904F    57:00009051    57:00009053    57:00009054 
+   58:00009055    58:00009056    58:00009058    58:0000905A    58:0000905C 
+   58:0000905D 
+File Y:\software\Z80\hello\../common\uart.asm
+   23:0000905E    24:00009060    25:00009062    26:00009064    27:00009066 
+   28:00009068    29:0000906A    30:0000906C    31:0000906E    32:00009070 
+   33:00009072    34:00009074    37:00009076    38:00009078    39:0000907A 
+   40:0000907B    41:0000907D    42:0000907F    43:00009080    44:00009082 
+   45:00009084    47:00009087    51:00009088    52:00009089    54:0000908B 
+   55:0000908D    56:0000908F    57:00009092    58:00009094    59:00009096 
+   60:00009098    61:0000909A    62:0000909C    63:0000909E    64:000090A0 
+   65:000090A2    66:000090A4    67:000090A6    68:000090A7    72:000090A8 
+   73:000090A9    74:000090AB    75:000090AD    76:000090B0    77:000090B2 
+   78:000090B4    79:000090B6    80:000090B7    81:000090B9    82:000090BB 
+   83:000090BC    84:000090BD    85:000090BE    87:000090BF    88:000090C0 
+   89:000090C1    90:000090C2    94:000090C3    95:000090C6    96:000090C9 
+File hello.asm
+    8:000090CA     9:000090CD    11:000090D0    12:000090D3    13:000090D6 
+   14:000090D9    18:000090DC    19:000090DD    20:000090DF    21:000090E0 
+   22:000090E3    23:000090E4    26:000090E7 
+
+Symbols in Segment NOTHING
+ARCHITECTURE                          String i386-unknown-win32        -1  0 1
+CASESENSITIVE                         Int    0                         -1  0 1
+COMPMODE                              Int    0                         -1  0 1
+CONSTPI                               Float  3.141592653589793         -1  0 1
+DATE                                  String 2/9/2023                  -1  0 1
+FALSE                                 Int    0                         -1  0 1
+FT240_NOSTB                           Int    0E                        -1  1 0
+FT240_RDSTB                           Int    0C                        -1  1 0
+FT240_RXF                             Int    80                        -1  1 0
+FT240_SIWU                            Int    20                        -1  1 0
+FT240_TXE                             Int    40                        -1  1 0
+FT240_WRMSK                           Int    1                         -1  1 0
+FULLPMMU                              Int    1                         -1  0 1
+HAS64                                 Int    0                         -1  0 1
+HASFPU                                Int    0                         -1  0 1
+HASPMMU                               Int    0                         -1  0 1
+INSUPMODE                             Int    0                         -1  0 1
+LED_BLUE                              Int    2                         -1  1 0
+LED_GREEN                             Int    8                         -1  1 0
+LED_RED                               Int    4                         -1  1 0
+LISTON                                Int    1                         -1  0 1
+MACEXP                                Int    7                         -1  0 1
+MOMCPU                                Int    80                        -1  0 1
+MOMCPUNAME                            String Z80                       -1  0 1
+NESTMAX                               Int    100                       -1  0 1
+PADDING                               Int    1                         -1  0 1
+PIA_ACR                               Int    0B                        -1  0 0
+PIA_BASE                              Int    0                         -1  1 0
+PIA_DDRA                              Int    3                         -1  1 0
+PIA_DDRB                              Int    2                         -1  1 0
+PIA_IN                                Int    0                         -1  1 0
+PIA_OUT                               Int    0FF                       -1  1 0
+PIA_PCR                               Int    0C                        -1  1 0
+PIA_PORTA                             Int    1                         -1  1 0
+PIA_PORTB                             Int    0                         -1  1 0
+RELAXED                               Int    1                         -1  0 1
+TIME                                  String 5:10:18                   -1  0 1
+TRUE                                  Int    1                         -1  0 1
+VERSION                               Int    142F                      -1  0 1
+
+Symbols in Segment CODE
+FT240_FLUSH                           Int    9076                      -1  1 0
+FT240_INIT                            Int    905E                      -1  1 0
+GETCHAR                               Int    90C3                      -1  1 0
+GETCHARNB                             Int    90A8                      -1  1 0
+HELLOMSG                              Int    90E7                      -1  1 0
+LED_BLUE_OFF                          Int    904C                      -1  0 0
+LED_BLUE_ON                           Int    9043                      -1  0 0
+LED_BLUE_TOGGLE                       Int    9055                      -1  0 0
+LED_GREEN_OFF                         Int    9031                      -1  0 0
+LED_GREEN_ON                          Int    9028                      -1  0 0
+LED_GREEN_TOGGLE                      Int    903A                      -1  1 0
+LED_INIT                              Int    9000                      -1  1 0
+LED_RED_OFF                           Int    9016                      -1  0 0
+LED_RED_ON                            Int    900D                      -1  0 0
+LED_RED_TOGGLE                        Int    901F                      -1  0 0
+LOOP                                  Int    90D0                      -1  1 0
+MAIN                                  Int    90CA                      -1  0 0
+NOCHAR36                              Int    9087                      -1  0 0
+NOCHAR38                              Int    90BF                      -1  1 0
+PUTCHAR                               Int    9088                      -1  1 0
+PUTCHARPOLL37                         Int    908B                      -1  1 0
+PUTSTR                                Int    90DC                      -1  1 0
