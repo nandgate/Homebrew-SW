@@ -1,3 +1,6 @@
+    IFNDEF  _UART_
+_UART_   SET     1
+
     CPU     Z80
 
 PIA_BASE    EQU     $00
@@ -46,7 +49,7 @@ FT240_Flush:
 $$NoChar:
     ret
 
-; Output the value in the acc to the console    
+; Output the value in A to the console
 PutChar:
     push    bc
     ld      c,PIA_PORTB
@@ -67,8 +70,17 @@ $$PutCharPoll:
     pop     bc
     ret
 
-; Read a character from the console in the acc, C == 1 indicates a character was read
-GetChar:
+; print null terminated string at (HL)
+putStr:
+    ld      a,(hl)              ; get the character
+    and     a,$FF               ; is it $00?
+    ret     z                   ; yes, done
+    call    PutChar             ; no, send it
+    inc     hl                  ; increment pointer
+    jp      putStr              ; output next character
+
+; Non-blocking read a character from the console in the acc, C == 1 indicates a character was read
+GetCharNB:
     push    bc
     in      a,PIA_PORTB   ; Test RXF# (bit-7)
     bit     7,a
@@ -88,4 +100,11 @@ $$NoChar:
     ccf                     
     pop     bc
     ret
-   
+
+; Blocking read a character from the console
+GetChar:
+    call    GetCharNB       ; Is a charcter available
+    jp      nc,GetChar      ; Got a char? Keep polling until we get a char
+    ret
+    
+    ENDIF
