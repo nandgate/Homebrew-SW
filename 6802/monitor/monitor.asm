@@ -4,6 +4,7 @@
     ORG     $F000
     include "LED.asm"
     include "uart.asm"
+    include "hexio.asm"
 
 ; Simple monitor:
 ; Prompt messsage is:
@@ -19,7 +20,7 @@
 ; +     Increment current address
 ; -     Decrement current address
 ; g     Go to current address
-; <sp>  Set current address   
+; <sp>  Set urrent address   
 
 ; Zero page address
 addrH       EQU     $00
@@ -28,6 +29,9 @@ userH       EQU     $02
 userL       EQU     $03
 ptrH        EQU     $04
 ptrL        EQU     $05
+styp        EQU     $06
+scnt        EQU     $07   
+schk        EQU     $08   
 
 reset:
     lds     #$01FF
@@ -43,37 +47,32 @@ InitMon:
     
 InfoCmd:
     ldx     #InfoStr
-$$loop
-    ldaa    0,x             ; get a char from the info string
-    beq     Prompt          ; End of string= exit
-    jsr     PutChar         ; not end end of string, output char
-    inx                     ; Point to next char in string
-    bra     $$loop
+    jsr     putStr
 
 Prompt:
-    jsr     LED_RED_Off
+;    jsr     LED_RED_Off
     ldaa    #$0a            ; Show Prompt
     jsr     PutChar
-    ldaa    addrH           ; Show high address
-    jsr     PutHex
-    ldaa    addrL           ; Show low address
-    jsr     PutHex
+    ldab    addrH           ; Show address
+    ldaa    addrL
+    jsr     putHex16
     ldaa    #' '            ; Space to seperate address and data
     jsr     PutChar
     ldx     addrH           ; Show data at address
     ldaa    0,x             
-    jsr     PutHex
+    jsr     putHex8
     ldaa    #'>'            ; Show Prompt
     jsr     PutChar
  NextChar:   
     jsr     GetChar         ; get char from user
-    bcc     NextChar        ; Got a char? Keep polling until we get a char
-    jsr     LED_RED_On
+;    jsr     LED_RED_On
     tab
-    jsr     PutChar         ; Should we echo the character?????
+;    jsr     PutChar         ; Should we echo the character?????
     tba
     cmpa    #'?'            ; Show info?
     beq     InfoCmd
+    cmpa    #'S'             ; S-record?
+    beq     LoadSrec
     cmpa    #'='            ; re-read address?
     beq     Prompt
     cmpa    #$0a            ; Write data byte?
@@ -122,19 +121,9 @@ NotGo:
 
 NotAddr:
 ParseHex:
-    ; Process hex digit in accA [0..9][A..F][a..f]
-    oraa    #$20            ; Force to lower
-    ldab    #$0F
-    ldx     #(HexChars+15); initialize point to valid hex chars
-ParseLoop:
-    cmpa    0,x             ; Is it this digit?
-    beq     GotHex          ; Yes, process the nibble value
-    dex                     ; No, advance pointer
-    decb
-    bpl     ParseLoop       ; Keep checking until index underflows
-    jmp     Prompt          ; Index underflowed, not a hex digit- abort
-GotHex:
-    pshb                    ; save value for later
+    jsr     parseHexDigit   ; Get a hex digit
+    bcs     Prompt          ; Bail when not a hex digit
+    psha                    ; save value for later
     ldaa    userL           ; Shift the user value to the left by 4 bits
     ldab    userH
     asla
@@ -152,31 +141,96 @@ GotHex:
     staa    userL
     bra     NextChar        ; Done, get next char    
     
-; Output the value in accA to the console as two hex bytes
-PutHex:
-    tab                         ; save value
-    lsra                        ; move high nibble to low
-    lsra
-    lsra
-    lsra
-    ldx     #HexChars           ; lookup hex char for nibble
-    stx     ptrH
-    adda    ptrL                ; add in offset (assumes indexing within same page)
-    staa    ptrL
-    ldx     ptrH
-    ldaa    0,x
-    jsr     PutChar             ; output hex char for nibble
-    andb    #$0f                ; mask high nibble away
-    ldx     #HexChars           ; lookup hex char for nibble
-    stx     ptrH
-    addb    ptrL
-    stab    ptrL
-    ldx     ptrH
-    ldaa    0,x
-    jmp     PutChar             ; output hex char for nibble
-
-HexChars:
-    FCB     "0123456789abcdef"
+; Read and process an S-record
+LoadSrec:
+    jsr     GetChar             ; Get the S-record type
+    staa    styp                ; Save it for later
+    cmpa    #'0'                ; S0 record?
+    beq     S0Rec               ; yes, processes it
+    cmpa    #'1'                ; S1 record?
+    beq     SRec                ; yes, process it
+    cmpa    #'9'                ; S9 record?
+    beq     SRec                ; yes, process it
+ReadToEOL:                      ; Not a support S-reord type
+    jsr     GetChar             ; get next char
+    cmpa    #'\n'               ; End Of Line?
+    bne     ReadToEOL           ; No, keep reading
+    jmp     Prompt              ; Yes, done with record
+S0Rec:
+    jsr     LED_RED_OFF         ; Turn off the error status LED
+SRec:
+    clr     schk                ; New record, clear the checksum
+    jsr     getHexByteSrec      ; Get byte count
+    bcs     SErr                ; skip rest of line when not hex
+    staa    scnt
+    jsr     getHexByteSrec      ; Get address high
+    bcs     SErr                ; skip rest of line when not hex
+    staa    addrH
+    jsr     getHexByteSrec      ; Get address low
+    bcs     SErr                ; skip rest of line when not hex
+    staa    addrL
+    ldaa    styp                ; Is this a S0 record?
+    cmpa    #'0'                  
+    bne     SLoop               ; Nope skip S0Tag    
+    ldx     #S0Tag              ; Show we got a S0 record 
+    jsr     putStr
+    ldaa    addrL               ; Show the address field
+    ldab    addrH
+    jsr     putHex16
+    ldaa    #':'                ; Seperator
+    jsr     putChar
+SLoop:
+    ldaa    scnt                ; Is checksum next byte?
+    dec     a
+    beq     SVerify             ; Yes, verify checksum
+    jsr     getHexByteSrec      ; No, read the next byte as two hex digits
+    bcs     SErr                ; skip rest of line when not hex
+    ldab    styp                ; Is this a S0 record?    
+    cmpb    #'0'
+    bne     S1Rec
+    jsr     putChar             ; yes, echo back to the user as a char
+    bra     SLoop
+S1Rec:
+    cmpb    #'1'                ; is this an S1 record?
+    bne     SLoop               ; no, must be S9, ignore the data
+    ldx     addrH               ; yes, save the data byte to the current address
+    sta     0,x
+    inx                         ; Increment the address
+    stx     addrH
+    bra     SLoop
+SVerify:
+    jsr     getHexByteSrec      ; read the checksum
+    bcs     SErr                ; skip rest of line when not hex
+    lda     SCHK                ; Checksum is now valid when it is zero
+    inc     a
+    beq     SChkOK              ; Checks out..
+SErr:
+    jsr     LED_RED_ON          ; Checksum failed, turn on the red light
+    bra     ReadToEOL           ; Skip the rest of the line until EOL
+SChkOk:
+    ldab    styp                ; S9 record?
+    cmpb    #'9'
+    bne     ReadToEOL           ; no, done with this record, skip the rest of the line
+    ldx     addrH               ; yes, get the address
+    cmpx    #0                  ; is the address zero?
+    beq     ReadToEOL           ; yes, done with record
+    jsr     0,x                 ; no, transer to specified address 
+    jmp     InitMon
+    
+getHexByteSrec:
+    jsr     getHexByte          ; get a byte as two hex digits
+    bcs     $$Exit              ; bail on error
+    psha    
+    adda    schk                ; add byte value to running checksum
+    staa    schk
+    dec     scnt                ; Decrement the byte count
+    pula                        ; return the byte value
+    clc                         ; clear carry for success
+$$Exit:
+    rts
+    
+S0Tag:
+    db      10,"S0 ",0
     
 InfoStr:
     FCB     10,"MiniMon,0.1,6802,0",10,0
@@ -190,3 +244,4 @@ swi:
 nmi:
     bra     nmi
 
+;  S00400004100

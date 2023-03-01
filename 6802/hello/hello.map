@@ -1,0 +1,100 @@
+Segment CODE
+File Y:\software\6802\hello\../common\LED.asm
+   40:00001000    41:00001003    42:00001005    43:00001008    44:0000100B 
+   45:0000100D    46:00001010    48:00001011    48:00001012    48:00001015 
+   48:00001017    48:0000101A    48:0000101B    49:0000101C    49:0000101D 
+   49:00001020    49:00001022    49:00001025    49:00001026    50:00001027 
+   50:00001028    50:0000102B    50:0000102D    50:00001030    50:00001031 
+   52:00001032    52:00001033    52:00001036    52:00001038    52:0000103B 
+   52:0000103C    53:0000103D    53:0000103E    53:00001041    53:00001043 
+   53:00001046    53:00001047    54:00001048    54:00001049    54:0000104C 
+   54:0000104E    54:00001051    54:00001052    56:00001053    56:00001054 
+   56:00001057    56:00001059    56:0000105C    56:0000105D    57:0000105E 
+   57:0000105F    57:00001062    57:00001064    57:00001067    57:00001068 
+   58:00001069    58:0000106A    58:0000106D    58:0000106F    58:00001072 
+   58:00001073 
+File Y:\software\6802\hello\../common\uart.asm
+   26:00001074    27:00001076    28:00001079    29:0000107C    30:0000107E 
+   31:00001081    32:00001083    33:00001086    34:00001089    35:0000108B 
+   36:0000108D    39:00001090    40:00001093    41:00001095    42:00001097 
+   43:0000109A    44:0000109B    45:0000109D    46:000010A0    48:000010A2 
+   52:000010A3    54:000010A4    55:000010A7    56:000010A9    57:000010AB 
+   58:000010AC    59:000010AF    60:000010B1    61:000010B4    62:000010B7 
+   63:000010B9    64:000010BC    65:000010BE    66:000010C1    67:000010C3 
+   68:000010C6    72:000010C7    73:000010C9    74:000010CB    75:000010CE 
+   76:000010CF    78:000010D1    82:000010D2    83:000010D5    84:000010D7 
+   85:000010D9    86:000010DC    87:000010DF    88:000010E1    89:000010E4 
+   90:000010E5    92:000010E6    93:000010E7    97:000010E8    98:000010EA 
+   99:000010EC 
+File hello.asm
+   10:000010ED    11:000010F0    12:000010F3    13:000010F4    15:000010F6 
+   16:000010F9    17:000010FC    18:000010FF    19:00001102    20:00001104 
+   23:00001105 
+
+Symbols in Segment NOTHING
+ARCHITECTURE                          String i386-unknown-win32        -1  0 1
+CASESENSITIVE                         Int    0                         -1  0 1
+COMPMODE                              Int    0                         -1  0 1
+CONSTPI                               Float  3.141592653589793         -1  0 1
+COUNT                                 Int    0                         -1  1 0
+DATE                                  String 2/27/2023                 -1  0 1
+FALSE                                 Int    0                         -1  0 1
+FT240_NOSTB                           Int    E                         -1  1 0
+FT240_RDSTB                           Int    C                         -1  1 0
+FT240_RXF                             Int    80                        -1  1 0
+FT240_SIWU                            Int    20                        -1  1 0
+FT240_TXE                             Int    40                        -1  1 0
+FT240_WRMSK                           Int    1                         -1  1 0
+FULLPMMU                              Int    1                         -1  0 1
+HAS64                                 Int    0                         -1  0 1
+HASFPU                                Int    0                         -1  0 1
+HASPMMU                               Int    0                         -1  0 1
+INSUPMODE                             Int    0                         -1  0 1
+LED_BLUE                              Int    2                         -1  1 0
+LED_GREEN                             Int    8                         -1  1 0
+LED_RED                               Int    4                         -1  1 0
+LISTON                                Int    1                         -1  0 1
+MACEXP                                Int    7                         -1  0 1
+MOMCPU                                Int    6800                      -1  0 1
+MOMCPUNAME                            String 6800                      -1  0 1
+NESTMAX                               Int    100                       -1  0 1
+PADDING                               Int    0                         -1  0 1
+PIA_ACR                               Int    20B                       -1  0 0
+PIA_BASE                              Int    200                       -1  1 0
+PIA_DDRA                              Int    203                       -1  1 0
+PIA_DDRB                              Int    202                       -1  1 0
+PIA_IN                                Int    0                         -1  1 0
+PIA_OUT                               Int    FF                        -1  1 0
+PIA_PCR                               Int    20C                       -1  1 0
+PIA_PORTA                             Int    201                       -1  1 0
+PIA_PORTB                             Int    200                       -1  1 0
+RELAXED                               Int    1                         -1  0 1
+TIME                                  String 4:19:52                   -1  0 1
+TRUE                                  Int    1                         -1  0 1
+VERSION                               Int    142F                      -1  0 1
+_UART_                                Int    1                         -1  0 1
+
+Symbols in Segment CODE
+EXIT43                                Int    10D1                      -1  1 0
+FT240_FLUSH                           Int    1090                      -1  1 0
+FT240_INIT                            Int    1074                      -1  1 0
+GETCHAR                               Int    10E8                      -1  1 0
+GETCHARNB                             Int    10D2                      -1  1 0
+HELLOMSG                              Int    1105                      -1  1 0
+LED_BLUE_OFF                          Int    105E                      -1  0 0
+LED_BLUE_ON                           Int    1053                      -1  0 0
+LED_BLUE_TOGGLE                       Int    1069                      -1  0 0
+LED_GREEN_OFF                         Int    103D                      -1  0 0
+LED_GREEN_ON                          Int    1032                      -1  0 0
+LED_GREEN_TOGGLE                      Int    1048                      -1  1 0
+LED_INIT                              Int    1000                      -1  1 0
+LED_RED_OFF                           Int    101C                      -1  0 0
+LED_RED_ON                            Int    1011                      -1  0 0
+LED_RED_TOGGLE                        Int    1027                      -1  0 0
+LOOP                                  Int    10F6                      -1  1 0
+MAIN                                  Int    10ED                      -1  0 0
+NOCHAR41                              Int    10A2                      -1  1 0
+NOCHAR44                              Int    10E6                      -1  1 0
+PUTCHAR                               Int    10A3                      -1  1 0
+PUTSTR                                Int    10C7                      -1  1 0
+PUTWAIT42                             Int    10A4                      -1  1 0

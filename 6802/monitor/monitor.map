@@ -1,35 +1,43 @@
 Segment CODE
-File Z:\prj\homebrew\software\6802\monitor\../common\vec.asm
+File Y:\software\6802\monitor\../common\vec.asm
     5:0000FFF8 
 File monitor.asm
-   33:0000F0DD    34:0000F0E0    35:0000F0E3    38:0000F0E6    39:0000F0E8 
-   40:0000F0EA    41:0000F0EC    42:0000F0EE    45:0000F0F0    47:0000F0F3 
-   48:0000F0F5    49:0000F0F7    50:0000F0FA    51:0000F0FB    54:0000F0FD 
-   55:0000F100    56:0000F102    57:0000F105    58:0000F107    59:0000F10A 
-   60:0000F10C    61:0000F10F    62:0000F111    63:0000F114    64:0000F116 
-   65:0000F118    66:0000F11B    67:0000F11D    69:0000F120    70:0000F123 
-   71:0000F125    72:0000F128    73:0000F129    74:0000F12C    75:0000F12D 
-   76:0000F12F    77:0000F131    78:0000F133    79:0000F135    80:0000F137 
-   81:0000F139    82:0000F13B    83:0000F13D    84:0000F13F    87:0000F141 
-   88:0000F143    90:0000F145    91:0000F147    92:0000F148    93:0000F14A 
-   96:0000F14C    97:0000F14E    98:0000F150    99:0000F152   100:0000F153 
-  101:0000F155   104:0000F157   105:0000F159   106:0000F15B   107:0000F15D 
-  108:0000F15E   109:0000F160   110:0000F161   111:0000F163   114:0000F165 
-  115:0000F167   116:0000F169   117:0000F16B   118:0000F16D   119:0000F16F 
-  120:0000F171   121:0000F173   126:0000F175   127:0000F177   128:0000F179 
-  130:0000F17C   131:0000F17E   132:0000F180   133:0000F181   134:0000F182 
-  135:0000F184   137:0000F187   138:0000F188   139:0000F18A   140:0000F18C 
-  141:0000F18D   142:0000F18E   143:0000F18F   144:0000F190   145:0000F191 
-  146:0000F192   147:0000F193   148:0000F194   149:0000F196   150:0000F198 
-  151:0000F199   152:0000F19B   153:0000F19D   157:0000F19F   158:0000F1A0 
-  159:0000F1A1   160:0000F1A2   161:0000F1A3   162:0000F1A4   163:0000F1A7 
-  164:0000F1A9   165:0000F1AB   166:0000F1AD   167:0000F1AF   168:0000F1B1 
-  169:0000F1B4   170:0000F1B6   171:0000F1B9   172:0000F1BB   173:0000F1BD 
-  174:0000F1BF   175:0000F1C1   176:0000F1C3   179:0000F1C6   182:0000F1D6 
-  185:0000F1EB   188:0000F1ED   191:0000F1EF 
-File Z:\prj\homebrew\software\6802\monitor\../common\vec.asm
+   37:0000F156    38:0000F159    39:0000F15C    42:0000F15F    43:0000F161 
+   44:0000F163    45:0000F165    46:0000F167    49:0000F169    50:0000F16C 
+   54:0000F16F    55:0000F171    56:0000F174    57:0000F176    58:0000F178 
+   59:0000F17B    60:0000F17D    61:0000F180    62:0000F182    63:0000F184 
+   64:0000F187    65:0000F189    67:0000F18C    69:0000F18F    71:0000F190 
+   72:0000F191    73:0000F193    74:0000F195    75:0000F197    76:0000F199 
+   77:0000F19B    78:0000F19D    79:0000F19F    80:0000F1A1    81:0000F1A3 
+   82:0000F1A5    83:0000F1A7    86:0000F1A9    87:0000F1AB    89:0000F1AD 
+   90:0000F1AF    91:0000F1B0    92:0000F1B2    95:0000F1B4    96:0000F1B6 
+   97:0000F1B8    98:0000F1BA    99:0000F1BB   100:0000F1BD   103:0000F1BF 
+  104:0000F1C1   105:0000F1C3   106:0000F1C5   107:0000F1C6   108:0000F1C8 
+  109:0000F1C9   110:0000F1CB   113:0000F1CD   114:0000F1CF   115:0000F1D1 
+  116:0000F1D3   117:0000F1D5   118:0000F1D7   119:0000F1D9   120:0000F1DB 
+  124:0000F1DD   125:0000F1E0   126:0000F1E2   127:0000F1E3   128:0000F1E5 
+  129:0000F1E7   130:0000F1E8   131:0000F1E9   132:0000F1EA   133:0000F1EB 
+  134:0000F1EC   135:0000F1ED   136:0000F1EE   137:0000F1EF   138:0000F1F1 
+  139:0000F1F3   140:0000F1F4   141:0000F1F6   142:0000F1F8   146:0000F1FA 
+  147:0000F1FD   148:0000F1FF   149:0000F201   150:0000F203   151:0000F205 
+  152:0000F207   153:0000F209   155:0000F20B   156:0000F20E   157:0000F210 
+  158:0000F212   160:0000F215   162:0000F218   163:0000F21B   164:0000F21E 
+  165:0000F220   166:0000F222   167:0000F225   168:0000F227   169:0000F229 
+  170:0000F22C   171:0000F22E   172:0000F230   173:0000F232   174:0000F234 
+  175:0000F236   176:0000F239   177:0000F23C   178:0000F23E   179:0000F240 
+  180:0000F243   181:0000F245   183:0000F248   184:0000F24A   185:0000F24B 
+  186:0000F24D   187:0000F250   188:0000F252   189:0000F254   190:0000F256 
+  191:0000F258   192:0000F25B   194:0000F25D   195:0000F25F   196:0000F261 
+  197:0000F263   198:0000F265   199:0000F266   200:0000F268   202:0000F26A 
+  203:0000F26D   204:0000F26F   205:0000F271   206:0000F272   208:0000F274 
+  209:0000F277   211:0000F279   212:0000F27B   213:0000F27D   214:0000F27F 
+  215:0000F281   216:0000F284   217:0000F286   218:0000F288   221:0000F28B 
+  222:0000F28E   223:0000F290   224:0000F291   225:0000F293   226:0000F295 
+  227:0000F298   228:0000F299   230:0000F29A   233:0000F29B   236:0000F2A0 
+  239:0000F2B5   242:0000F2B7   245:0000F2B9 
+File Y:\software\6802\monitor\../common\vec.asm
     6:0000FFFA     7:0000FFFC     8:0000FFFE 
-File Z:\prj\homebrew\software\6802\monitor\../common\LED.asm
+File Y:\software\6802\monitor\../common\LED.asm
    40:0000F000    41:0000F003    42:0000F005    43:0000F008    44:0000F00B 
    45:0000F00D    46:0000F010    48:0000F011    48:0000F012    48:0000F015 
    48:0000F017    48:0000F01A    48:0000F01B    49:0000F01C    49:0000F01D 
@@ -43,17 +51,31 @@ File Z:\prj\homebrew\software\6802\monitor\../common\LED.asm
    57:0000F05F    57:0000F062    57:0000F064    57:0000F067    57:0000F068 
    58:0000F069    58:0000F06A    58:0000F06D    58:0000F06F    58:0000F072 
    58:0000F073 
-File Z:\prj\homebrew\software\6802\monitor\../common\uart.asm
-   24:0000F074    25:0000F076    26:0000F079    27:0000F07C    28:0000F07E 
-   29:0000F081    30:0000F083    31:0000F086    32:0000F089    33:0000F08B 
-   34:0000F08D    37:0000F090    38:0000F093    39:0000F095    40:0000F097 
-   41:0000F09A    42:0000F09B    43:0000F09D    44:0000F0A0    46:0000F0A2 
-   50:0000F0A3    52:0000F0A4    53:0000F0A7    54:0000F0A9    55:0000F0AB 
-   56:0000F0AC    57:0000F0AF    58:0000F0B1    59:0000F0B4    60:0000F0B7 
-   61:0000F0B9    62:0000F0BC    63:0000F0BE    64:0000F0C1    65:0000F0C3 
-   66:0000F0C6    70:0000F0C7    71:0000F0CA    72:0000F0CC    73:0000F0CE 
-   74:0000F0D1    75:0000F0D4    76:0000F0D6    77:0000F0D9    78:0000F0DA 
-   80:0000F0DB    81:0000F0DC 
+File Y:\software\6802\monitor\../common\uart.asm
+   26:0000F074    27:0000F076    28:0000F079    29:0000F07C    30:0000F07E 
+   31:0000F081    32:0000F083    33:0000F086    34:0000F089    35:0000F08B 
+   36:0000F08D    39:0000F090    40:0000F093    41:0000F095    42:0000F097 
+   43:0000F09A    44:0000F09B    45:0000F09D    46:0000F0A0    48:0000F0A2 
+   52:0000F0A3    54:0000F0A4    55:0000F0A7    56:0000F0A9    57:0000F0AB 
+   58:0000F0AC    59:0000F0AF    60:0000F0B1    61:0000F0B4    62:0000F0B7 
+   63:0000F0B9    64:0000F0BC    65:0000F0BE    66:0000F0C1    67:0000F0C3 
+   68:0000F0C6    72:0000F0C7    73:0000F0C9    74:0000F0CB    75:0000F0CE 
+   76:0000F0CF    78:0000F0D1    82:0000F0D2    83:0000F0D5    84:0000F0D7 
+   85:0000F0D9    86:0000F0DC    87:0000F0DF    88:0000F0E1    89:0000F0E4 
+   90:0000F0E5    92:0000F0E6    93:0000F0E7    97:0000F0E8    98:0000F0EA 
+   99:0000F0EC 
+File Y:\software\6802\monitor\../common\hexio.asm
+    7:0000F0ED     8:0000F0F0     9:0000F0F2    10:0000F0F3    11:0000F0F4 
+   12:0000F0F5    13:0000F0F6    14:0000F0F7    15:0000F0FA    16:0000F0FC 
+   17:0000F0FD    18:0000F0FE    20:0000F0FF    23:0000F100    26:0000F103 
+   27:0000F105    28:0000F107    30:0000F10A    31:0000F10C    32:0000F10E 
+   33:0000F10F    34:0000F110    35:0000F112    36:0000F113    38:0000F114 
+   39:0000F115    40:0000F116    44:0000F117    45:0000F118    46:0000F119 
+   47:0000F11A    48:0000F11B    49:0000F11C    50:0000F11F    51:0000F121 
+   52:0000F123    53:0000F125    54:0000F127    55:0000F129    56:0000F12C 
+   57:0000F12E    58:0000F131    59:0000F133    60:0000F135    61:0000F137 
+   62:0000F139    63:0000F13B    67:0000F13E    68:0000F13F    69:0000F140 
+   70:0000F143    71:0000F144    74:0000F146 
 
 Symbols in Segment NOTHING
 ADDRH                                 Int    0                         -1  1 0
@@ -62,7 +84,7 @@ ARCHITECTURE                          String i386-unknown-win32        -1  0 1
 CASESENSITIVE                         Int    0                         -1  0 1
 COMPMODE                              Int    0                         -1  0 1
 CONSTPI                               Float  3.141592653589793         -1  0 1
-DATE                                  String 1/3/2023                  -1  0 1
+DATE                                  String 2/27/2023                 -1  0 1
 FALSE                                 Int    0                         -1  0 1
 FT240_NOSTB                           Int    E                         -1  1 0
 FT240_RDSTB                           Int    C                         -1  1 0
@@ -96,23 +118,35 @@ PIA_PORTB                             Int    200                       -1  1 0
 PTRH                                  Int    4                         -1  1 0
 PTRL                                  Int    5                         -1  1 0
 RELAXED                               Int    1                         -1  0 1
-TIME                                  String 19:27:0                   -1  0 1
+SCHK                                  Int    8                         -1  1 0
+SCNT                                  Int    7                         -1  1 0
+STYP                                  Int    6                         -1  1 0
+TIME                                  String 4:25:40                   -1  0 1
 TRUE                                  Int    1                         -1  0 1
 USERH                                 Int    2                         -1  1 0
 USERL                                 Int    3                         -1  1 0
 VERSION                               Int    142F                      -1  0 1
+_HEXIO_                               Int    1                         -1  0 1
+_UART_                                Int    1                         -1  0 1
 
 Symbols in Segment CODE
-DOINC                                 Int    F145                      -1  1 0
+DOINC                                 Int    F1AD                      -1  1 0
+EXIT45                                Int    F0D1                      -1  1 0
+EXIT85                                Int    F29A                      -1  1 0
 FT240_FLUSH                           Int    F090                      -1  1 0
 FT240_INIT                            Int    F074                      -1  1 0
-GETCHAR                               Int    F0C7                      -1  1 0
-GOTHEX                                Int    F187                      -1  1 0
-HEXCHARS                              Int    F1C6                      -1  1 0
-INFOCMD                               Int    F0F0                      -1  1 0
-INFOSTR                               Int    F1D6                      -1  1 0
-INITMON                               Int    F0E6                      -1  0 0
-IRQ                                   Int    F1EB                      -1  1 0
+GETCHAR                               Int    F0E8                      -1  1 0
+GETCHARNB                             Int    F0D2                      -1  1 0
+GETHEXBYTE                            Int    F0ED                      -1  1 0
+GETHEXBYTEEXIT49                      Int    F0FF                      -1  1 0
+GETHEXBYTESREC                        Int    F28B                      -1  1 0
+GETHEXDIGIT                           Int    F100                      -1  1 0
+GOTHEX51                              Int    F114                      -1  1 0
+HEXCHARS                              Int    F146                      -1  1 0
+INFOCMD                               Int    F169                      -1  1 0
+INFOSTR                               Int    F2A0                      -1  1 0
+INITMON                               Int    F15F                      -1  1 0
+IRQ                                   Int    F2B5                      -1  1 0
 LED_BLUE_OFF                          Int    F05E                      -1  0 0
 LED_BLUE_ON                           Int    F053                      -1  0 0
 LED_BLUE_TOGGLE                       Int    F069                      -1  0 0
@@ -123,21 +157,33 @@ LED_INIT                              Int    F000                      -1  1 0
 LED_RED_OFF                           Int    F01C                      -1  1 0
 LED_RED_ON                            Int    F011                      -1  1 0
 LED_RED_TOGGLE                        Int    F027                      -1  0 0
-LOOP53                                Int    F0F3                      -1  1 0
-NEXTCHAR                              Int    F120                      -1  1 0
-NMI                                   Int    F1EF                      -1  1 0
-NOCHAR42                              Int    F0A2                      -1  1 0
-NOCHAR44                              Int    F0DB                      -1  1 0
-NOTADDR                               Int    F175                      -1  1 0
-NOTDEC                                Int    F157                      -1  1 0
-NOTGO                                 Int    F165                      -1  1 0
-NOTINC                                Int    F14C                      -1  1 0
-NOTWRITE                              Int    F141                      -1  1 0
-PARSEHEX                              Int    F175                      -1  0 0
-PARSELOOP                             Int    F17C                      -1  1 0
-PROMPT                                Int    F0FD                      -1  1 0
+LOADSREC                              Int    F1FA                      -1  1 0
+NEXTCHAR                              Int    F18C                      -1  1 0
+NMI                                   Int    F2B9                      -1  1 0
+NOCHAR43                              Int    F0A2                      -1  1 0
+NOCHAR46                              Int    F0E6                      -1  1 0
+NOTADDR                               Int    F1DD                      -1  1 0
+NOTDEC                                Int    F1BF                      -1  1 0
+NOTGO                                 Int    F1CD                      -1  1 0
+NOTINC                                Int    F1B4                      -1  1 0
+NOTWRITE                              Int    F1A9                      -1  1 0
+PARSEHEX                              Int    F1DD                      -1  0 0
+PARSEHEXDIGIT                         Int    F103                      -1  1 0
+PARSELOOP51                           Int    F10A                      -1  1 0
+PROMPT                                Int    F16F                      -1  1 0
 PUTCHAR                               Int    F0A3                      -1  1 0
-PUTHEX                                Int    F19F                      -1  1 0
-PUTWAIT43                             Int    F0A4                      -1  1 0
-RESET                                 Int    F0DD                      -1  1 0
-SWI                                   Int    F1ED                      -1  1 0
+PUTHEX16                              Int    F13E                      -1  1 0
+PUTHEX8                               Int    F117                      -1  1 0
+PUTSTR                                Int    F0C7                      -1  1 0
+PUTWAIT44                             Int    F0A4                      -1  1 0
+READTOEOL                             Int    F20B                      -1  1 0
+RESET                                 Int    F156                      -1  1 0
+S0REC                                 Int    F215                      -1  1 0
+S0TAG                                 Int    F29B                      -1  1 0
+S1REC                                 Int    F25D                      -1  1 0
+SCHKOK                                Int    F279                      -1  1 0
+SERR                                  Int    F274                      -1  1 0
+SLOOP                                 Int    F248                      -1  1 0
+SREC                                  Int    F218                      -1  1 0
+SVERIFY                               Int    F26A                      -1  1 0
+SWI                                   Int    F2B7                      -1  1 0
