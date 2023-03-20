@@ -1,3 +1,5 @@
+    IFNDEF  _UART_
+_UART_   SET     1
     CPU     6502
 
 PIA_BASE    EQU     $0200
@@ -61,8 +63,21 @@ PutChar:
     sta     PIA_DDRA
     rts
 
+   ; print null terminated string at (x)
+putStr:
+    ldy     #0
+$$loop:
+    lda     (strPtrL),y  ; get the character
+    beq     $$exit      ; is it $00? yes, done
+    jsr     PutChar     ; no, send it
+    iny                 ; increment pointer
+    bne     $$loop      ; output next character
+$$exit:
+    rts
+
+
 ; Read a character from the console in the acc, C == 1 indicates a character was read
-GetChar:
+GetCharNB:
     bit     PIA_PORTB       ; Test RXF# (bit-7)
     bmi     $$NoChar          ; Branch when RXF# is set, no data in FIFO
     ldx     #FT240_RDSTB    ; FT240 RD# = 0; strobe next byte from FIFO
@@ -75,3 +90,11 @@ GetChar:
 $$NoChar:
     clc                     ; Clear carry to indicate there was nothing to read
     rts
+    
+    ; Blocking read a character from the console
+GetChar:
+    jsr     GetCharNB       ; Is a charcter available
+    bcc     GetChar         ; Got a char? Keep polling until we get a char
+    rts
+
+    ENDIF
